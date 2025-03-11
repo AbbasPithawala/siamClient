@@ -18,10 +18,7 @@ import { renderToString } from "react-dom/server";
 import jsPDF from "jspdf";
 import Logo from "../../../../images/logo.png";
 import mainQR from "../../../../images/PDFQR.png";
-import { Menu, MenuItem } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 
 
@@ -508,18 +505,7 @@ export default function ManageJobs() {
     updateJobsForWorkers(par)
   }
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [anchorIndex, setAnchorIndex] = useState(null);
-  const openMenu = Boolean(anchorEl);
 
-  const handleClick = (event, index) => {
-    setAnchorIndex(index)
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
 
   // ======================================================================
   // ========================== static function ===========================
@@ -813,24 +799,9 @@ export default function ManageJobs() {
                             />
                           </td>
                           <td>
-                              <IconButton onClick={(e) => handleClick(e, index)}>
-                                <MoreVertIcon />
-                              </IconButton>
-                              <Menu
-                                anchorEl={anchorEl}
-                                open={anchorIndex == index && openMenu ? true : false}
-                                onClose={handleCloseMenu}
-                              >
-                                <MenuItem onClick={(e) => { handleSelectJob("job", job['_id']); handleCloseMenu(); }} data-type="job" data-jobid={job['_id']}>
-                                  <EditIcon style={{marginRight: "10px", color: "grey", fontSize: "18"}}/> <span style={{fontSize: "16px", fontWeight: "500", fontStyle: "inherit"}}>Edit</span>
-                                </MenuItem>
-                                <MenuItem onClick={(e) => { exportPDF("job", job['_id']); handleCloseMenu(); }} data-type="job" data-id={job['_id']}>
-                                  <PictureAsPdfIcon style={{marginRight: "10px", color: "grey", fontSize: "18"}}/> <span style={{fontSize: "16px", fontWeight: "500", fontStyle: "inherit"}}>Reprint</span>
-                                </MenuItem>
-                                {/* <MenuItem onClick={(e) => { handleOpenDeleteDialog(e); handleCloseMenu(); }} data-type="job" data-jobid={job['_id']}>
-                                <DeleteIcon style={{marginRight: "10px", color: "red", fontSize: "18"}}/> <span style={{color: "red", fontSize: "16px", fontWeight: "500", fontStyle: "inherit"}}>Delete</span>
-                                </MenuItem> */}
-                              </Menu>
+                              <span><EditIcon onClick={(e) => { handleSelectJob("job", job['_id'])}} style={{ marginRight: "5px", color: "#1C4D8F", fontSize: "20px", cursor: "pointer"}}/></span>
+                               <span><PictureAsPdfIcon onClick={(e) => { exportPDF("job", job['_id']); }} style={{ marginRight: "5px", color: "#1C4D8F", fontSize: "20px", cursor: "pointer"}}/></span>
+
                           </td>
                         </tr>
                       );

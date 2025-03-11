@@ -122,7 +122,7 @@ console.log("styles array : ", stylesArray)
         data-image={styles['image']}
         data-additional={false} 
         onChange={(e) => handleStyleChange(e, productIndex)}>
-          
+          <option value="" selected disabled>Select an option</option>
           
         {styles['style_options'].map((options) => {
             return(

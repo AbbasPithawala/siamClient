@@ -98,6 +98,7 @@ export default function OrderStatusBarcoding() {
   };
 
   const handleCreateShippingBox =() => {
+    console.log(retailer, shippingBoxName)
     if(retailer && shippingBoxName){
       createShippingBox()
     }else{
@@ -367,7 +368,6 @@ export default function OrderStatusBarcoding() {
     }
   }
 
-
   // ===========================================
   // ===========================================
 
@@ -623,15 +623,15 @@ export default function OrderStatusBarcoding() {
                     ? 
                     allRetailers.map((retailer) => {
                       return (
-                      <label key ={retailer['_id']} className="full_label">
+                      <label key ={retailer['_id']} htmlFor={retailer['_id']} className="full_label">
                       <input
                         type="radio"
-                        id="chkAdminModuleID1"
+                        id={retailer['_id']}
                         value={retailer['_id']}
                         name="retailer"
                         onChange={(e) => setRetailerID(e.target.value)}
                       />
-                      <label htmlFor="chkAdminModuleID1">{retailer['retailer_name']}</label>
+                      {retailer['retailer_name']}
                     </label>
                       )
                     })
