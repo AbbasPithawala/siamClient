@@ -106,6 +106,8 @@ export default function OrderStatusBarcoding() {
     }
   }
 
+  console.log(retailer)
+
   const handleSelectRetailer = (e) => {
     const ret = allRetailers.filter((retail) => retail['_id'] === e.target.value)
     setRetailer(ret[0])

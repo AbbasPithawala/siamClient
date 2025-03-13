@@ -158,7 +158,6 @@ export default function Measurements({
         {/* ============================================================ */}
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2} style={{padding: "5px 10px"}}>
-            {/* Header Row */}
             {[...Array(2)].map((_, i) => (
               <Grid item xs={6} key={i} style={{padding: "10px 20px"}}>
                 <div
@@ -182,7 +181,6 @@ export default function Measurements({
               </Grid>
             ))}
 
-            {/* Measurement Rows */}
             {measurements.map((measurement) => (
               <Grid item xs={6} key={measurement.name} style={{padding: "10px 20px"}}>
                 <div
@@ -198,16 +196,15 @@ export default function Measurements({
                     marginBottom: "10px",
                   }}
                 >
-                  <p style={{ minWidth: "150px", fontWeight: "bold", fontSize: "14px" }}>
+                  <p style={{ minWidth: "20%", fontWeight: "bold", fontSize: "14px" }}>
                     {measurement.name.charAt(0).toUpperCase() + measurement.name.slice(1)}
                   </p>
 
                   <input
                     type="number"
-                    className="searchinput"
+                    className="searchinput-measurement"
                     style={{
-                      flex: 1, // Reduced width
-                      padding: "px",
+                      padding: "6px",
                       borderRadius: "5px",
                       border: "1px solid #ccc",
                       outline: "none",
@@ -216,16 +213,20 @@ export default function Measurements({
                     }}
                     value={productMeasurements[measurement.name]?.value || 0}
                     name={measurement.name + "-value"}
-                    onChange={handleValueChange}
+                    min="0" // Ensures the user cannot manually enter a value below 0
+                    onChange={(e) => {
+                      const newValue = Math.max(0, Number(e.target.value)); // Prevents negative values
+                      handleValueChange({ target: { name: e.target.name, value: newValue } });
+                    }}
+                    // onChange={handleValueChange}
                     onClick={handleOnClick}
 
                   />
 
                   <input
                     type="number"
-                    className="searchinput"
+                    className="searchinput-measurement"
                     style={{
-                      flex: 1, // Reduced width
                       padding: "6px",
                       borderRadius: "5px",
                       border: "1px solid #ccc",
@@ -235,16 +236,19 @@ export default function Measurements({
                     }}
                     value={productMeasurements[measurement.name]?.adjustment_value || 0}
                     name={measurement.name + "-adjustment_value"}
-                    onChange={handleValueChange}
+                    min="0" // Ensures the user cannot manually enter a value below 0
+                    onChange={(e) => {
+                      const newValue = Math.max(0, Number(e.target.value)); // Prevents negative values
+                      handleValueChange({ target: { name: e.target.name, value: newValue } });
+                    }}
                     onClick={handleOnClick}
                   />
 
                   <input
                     type="number"
-                    className="searchinput"
+                    className="searchinput-measurement"
                     disabled
                     style={{
-                      flex: 1, // Reduced width
                       padding: "6px",
                       borderRadius: "5px",
                       border: "1px solid #eee",
@@ -278,194 +282,7 @@ export default function Measurements({
 
         {/* ============================================================ */}
       </div>
-      {/* <div className="step-2styles-NM ">
-
-
-        <div className="step-2Style-left">
-          <div className="measurment-units-boxes">
-            <table>
-              <thead>
-                <tr>
-                  <th> Measurement Name </th>
-                  <th> Value </th>
-                  <th> Adjustment </th>
-                  <th> Total value </th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {measurements
-                  .slice(0, Math.ceil(totalMeasurements / 2))
-                  .map((measurement, index) => {
-                    return (
-                      <tr key={measurement.name}>
-                        <td>{(measurement.name).charAt(0).toUpperCase() + (measurement.name).slice(1)}</td>
-                        <td>
-                          <input
-                            type="number"
-                            className="searchinput"
-                            value={
-                              productMeasurements[measurement.name]
-                                ?
-                                productMeasurements[measurement.name][
-                                "value"
-                                ]
-                                :
-                                0
-                            }
-                            name={measurement.name + "-value"}
-                            onChange={handleValueChange}
-                            onClick={handleOnClick}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            className="searchinput"
-                            value={
-                              productMeasurements[measurement.name]
-                                ?
-                                productMeasurements[measurement.name][
-                                "adjustment_value"
-                                ]
-                                :
-                                0
-                            }
-                            // disabled={adjustmentValueImmutable}
-                            name={measurement.name + "-adjustment_value"}
-                            onChange={handleValueChange}
-                            onClick={handleOnClick}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            className="searchinput"
-                            disabled
-                            value={
-                              productMeasurements[measurement.name]
-                                ?
-                                productMeasurements[measurement.name][
-                                "total_value"
-                                ]
-                                :
-                                0
-                            }
-                            name={measurement.name + "-total_value"}
-                            onChange={handleValueChange}
-                            onClick={handleOnClick}
-                          />
-                        </td>
-                        <td>
-                          {draftMeasurementsObject && draftMeasurementsObject[product_name] && draftMeasurementsObject[product_name]['measurements'][measurement.name] && Number(draftMeasurementsObject[product_name]['measurements'][measurement.name]['total_value']) !== Number(productMeasurements[measurement.name]["total_value"])
-                            ?
-                            <span style={{ color: "green" }}><CheckCircleOutlineIcon /></span>
-                            :
-                            <></>
-                          }
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="step-2Style-right">
-          <div className="measurment-units-boxes">
-            <table>
-              <thead>
-                <tr>
-                  <th> Measurement Name </th>
-                  <th> Value </th>
-                  <th> Adjustment </th>
-                  <th> Total value </th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {measurements
-                  .slice(
-                    Math.ceil(totalMeasurements / 2),
-                    totalMeasurements.length
-                  )
-                  .map((measurement, index) => {
-                    return (
-                      <tr key={measurement.name}>
-                        <td>{(measurement.name).charAt(0).toUpperCase() + (measurement.name).slice(1)}</td>
-                        <td>
-                          <input
-                            type="number"
-                            className="searchinput"
-                            value={
-                              productMeasurements[measurement.name]
-                                ?
-                                productMeasurements[measurement.name][
-                                "value"
-                                ]
-                                :
-                                0
-                            }
-                            name={measurement.name + "-value"}
-                            onChange={handleValueChange}
-                            onClick={handleOnClick}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            className="searchinput"
-                            value={
-                              productMeasurements[measurement.name]
-                                ?
-                                productMeasurements[measurement.name][
-                                "adjustment_value"
-                                ]
-                                :
-                                0
-                            }
-                            // disabled={adjustmentValueImmutable}
-                            name={measurement.name + "-adjustment_value"}
-                            onChange={handleValueChange}
-                            onClick={handleOnClick}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            className="searchinput"
-                            disabled
-                            value={
-                              productMeasurements[measurement.name]
-                                ?
-                                productMeasurements[measurement.name][
-                                "total_value"
-                                ]
-                                :
-                                0
-                            }
-                            name={measurement.name + "-total_value"}
-                            onChange={handleValueChange}
-                            onClick={handleOnClick}
-                          />
-                        </td>
-                        <td>
-                          {draftMeasurementsObject && draftMeasurementsObject[product_name] && draftMeasurementsObject[product_name]['measurements'][measurement.name] && Number(draftMeasurementsObject[product_name]['measurements'][measurement.name]['total_value']) !== Number(productMeasurements[measurement.name]["total_value"])
-                            ?
-                            <span style={{ color: "green" }}><CheckCircleOutlineIcon /></span>
-                            :
-                            <></>
-                          }
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div> */}
+ 
 
 
       {product_name == "vest" ? (

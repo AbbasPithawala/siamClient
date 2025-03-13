@@ -306,12 +306,16 @@ export default function CustomerOrders() {
                           <Tooltip title="Repeat">
                             {orderType == "normal"
                             ?
-                            <Link to={`/retailer/RepeatOrder/${order._id}`}>
-                              <RepeatIcon color="success" />
-                            </Link>
+                             <Link
+                             to={`/retailer/RepeatOrder/${order._id}`}
+                             className="newOrder-back-btn rigth-side"
+                           >
+                             Repeat
+                           </Link>
                             :
-
+                              <>
                               <RepeatIcon color="success" data-name={order._id} onClick = {handleClickOpen}/>
+                              </>
                             
                             }
                             

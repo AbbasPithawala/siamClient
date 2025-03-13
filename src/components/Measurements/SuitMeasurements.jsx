@@ -1,6 +1,8 @@
 import React, {useState, useEffect, useContext} from 'react';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { Button } from "@mui/material";
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 
 export default function SuitMeasurements({
   newMeasurement,
@@ -141,6 +143,7 @@ export default function SuitMeasurements({
   return(
     <>
     {newMeasurement.map((measurement, index) => {
+      console.log("====", measurement.m)
       return (
         <>
           <div
@@ -195,7 +198,133 @@ export default function SuitMeasurements({
               </div>
             </div>
             <div className="f" key={index}>
-              <div className="step-2Style-left">
+              <div className="step-2styles-NM ">
+                      {/* ============================================================ */}
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Grid container spacing={2} style={{padding: "5px 10px"}}>
+                            {[...Array(2)].map((_, i) => (
+                              <Grid item xs={6} key={i} style={{padding: "10px 20px"}}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    width: "100%",
+                                    justifyContent: "space-between",
+                                    padding: "10px 20px",
+                                    fontWeight: "bold",
+                                    background: "#f0f0f0",
+                                    borderRadius: "6px",
+                                  }}
+                                >
+                                  <p style={{ flex: 1 }}>Measurement Name</p>
+                                  <p style={{ flex: 1, textAlign: "center" }}>Value</p>
+                                  <p style={{ flex: 1, textAlign: "center" }}>Adjustment</p>
+                                  <p style={{ flex: 1, textAlign: "center" }}>Total Value</p>
+                                  <p style={{ flex: 0.5 }}></p>
+                                </div>
+                              </Grid>
+                            ))}
+                            
+                
+                            {Object.keys(measurement.m).map((data) => (
+                              <Grid item xs={6} key={data} style={{padding: "10px 20px"}}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    width: "100%",
+                                    justifyContent: "space-between",
+                                    padding: "10px 20px",
+                                    background: "#fff",
+                                    borderRadius: "8px",
+                                    boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
+                                    marginBottom: "10px",
+                                  }}
+                                >
+                                  <p style={{ minWidth: "20%", fontWeight: "bold", fontSize: "14px" }}>
+                                  {data.charAt(0).toUpperCase() + data.slice(1)}
+                                  </p>
+                
+                                  <input
+                                    type="number"
+                                    className="searchinput-measurement"
+                                    style={{
+                                      padding: "6px",
+                                      borderRadius: "5px",
+                                      border: "1px solid #ccc",
+                                      outline: "none",
+                                      textAlign: "center",
+                                      margin: "5px"
+                                    }}
+                                    name={data + "-value"}
+                                    value={measurement.m[data]["value"]}
+                                    // value={productMeasurements1[data]['value']}
+                                    onChange={suithandleValueChange}
+                                    onClick={handleOnClick}
+                
+                                  />
+                
+                                  <input
+                                    type="number"
+                                    className="searchinput-measurement"
+                                    style={{
+                                      padding: "6px",
+                                      borderRadius: "5px",
+                                      border: "1px solid #ccc",
+                                      outline: "none",
+                                      textAlign: "center",
+                                      margin: "5px"
+                                    }}
+                                    value={
+                                      measurement.m[data][
+                                        "adjustment_value"
+                                      ]
+                                    }
+                                    // value={productMeasurements1[data]['adjustment_value']}
+                                    // disabled={adjustmentValueImmutable}
+                                    name={data + "-adjustment_value"}
+                                    onChange={suithandleValueChange}
+                                    onClick={handleOnClick}
+                                  />
+                
+                                  <input
+                                    type="number"
+                                    className="searchinput-measurement"
+                                    disabled
+                                    style={{
+                                      padding: "6px",
+                                      borderRadius: "5px",
+                                      border: "1px solid #eee",
+                                      background: "#f7f7f7",
+                                      textAlign: "center",
+                                      margin: "5px"
+                                    }}
+                                    value={
+                                      measurement.m[data]["total_value"]
+                                    }
+                                    // value={productMeasurements1[data]['total_value']}
+                                    name={data + "-total_value"}
+                                    onChange={suithandleValueChange}
+                                    onClick={handleOnClick}
+                                  />
+                
+                                  {draftMeasurementsObject  && draftMeasurementsObject[measurement.name] && draftMeasurementsObject[measurement.name]['measurements'][data] && Number(draftMeasurementsObject[measurement.name]['measurements'][data]['total_value']) !== Number(measurement.m[data]["total_value"]) ? (
+                                    <span style={{ color: "green", fontSize: "18px", minWidth: "50px", margin: "5px"}}>
+                                      <CheckCircleOutlineIcon />
+                                    </span>
+                                  ) : (
+                                    <span style={{ color: "green", fontSize: "18px", minWidth: "50px",margin: "5px"}}>
+                                    </span>
+                                  )}
+                                </div>
+                              </Grid>
+                            ))}
+                          </Grid>
+                        </Box>
+                
+                        {/* ============================================================ */}
+              </div>
+              {/* <div className="step-2Style-left">
                 <div className="measurment-units-boxes">
                   <table>
                     <thead>
@@ -208,7 +337,7 @@ export default function SuitMeasurements({
                       </tr>
                     </thead>
                     <tbody>
-                      {Object.keys(measurement.m)
+                      { Object.keys(measurement.m)
                         .slice(
                           0,
                           Math.ceil(
@@ -351,7 +480,7 @@ export default function SuitMeasurements({
                     </tbody>
                   </table>
                 </div>
-              </div>
+              </div> */}
             </div>
             {measurement.name == "jacket" ? (
               <div className="fabric-types_NM">

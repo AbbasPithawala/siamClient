@@ -274,6 +274,12 @@ div.content-wrapper .step-4rushorderbox .MuiButton-text {
     width: 100% !important;
     margin: 6px 0px 0px 0px !important;
 }
+
+.searchinput-measurement{
+    
+    width: 20% !important;
+}
+
 .f tr:nth-child(even) {
     background-color: #fff;
 }
