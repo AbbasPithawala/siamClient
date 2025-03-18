@@ -329,6 +329,8 @@ console.log("order: ", thisOrder)
     const res = await axiosInstance.post("/groupOrders/fetchDatag/" + id, {token: user.data.token})
     setOrder(res.data.data)
   }
+
+  console.log("order: ", order)
   
   const fetchProducts = async () => {
     const res = await axiosInstance.post("/product/fetchAll/0/0", {

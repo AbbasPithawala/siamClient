@@ -125,6 +125,7 @@ const handleStyleChangeRadio =(e) =>{
         data-addtional={false} 
         onChange={(e) => handleSuitStyleChange(e, productIndex, product)}>
           
+          <option value="" selected disabled>Select an option</option>
           
         {styles['style_options'].map((options) => {
             return(

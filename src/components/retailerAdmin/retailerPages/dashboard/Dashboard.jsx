@@ -703,6 +703,7 @@ const fetchAllOrders = async (par) => {
                   <th>Order #</th>
                   <th>Total Qty</th>
                   <th> Customer Name </th>
+                  <th> Type </th>
                   <th>View</th>
                   <th>Generate</th>
                   <th>Status</th>
@@ -718,6 +719,14 @@ const fetchAllOrders = async (par) => {
                       <td> {order.orderId} </td>
                       <td> {order.total_quantity} </td>
                       <td> {order.customerName} </td>
+                      <td> {order.type  == "group"?     
+                            <span className="ModifiedBg" style={{textTransform: "capitalize"}}>
+                              {order.type}
+                            </span> : 
+                            <span className="newOrderBg" style={{textTransform: "capitalize"}}>
+                              Normal
+                            </span> 
+                            } </td>
                       <td> 
                             <strong>
                               <button

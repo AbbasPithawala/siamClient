@@ -549,6 +549,7 @@ export default function NewOrder() {
         `/groupOrders/placeGroupOrder/` + id,
         {
           token: user.data.token,
+          order: groupOrder
         }
       );
       if (res2.data.status == "success") {
@@ -567,6 +568,7 @@ export default function NewOrder() {
       }
     }
   };
+  console.log("group: ", groupOrder)
 
   const action = (
     <React.Fragment>
