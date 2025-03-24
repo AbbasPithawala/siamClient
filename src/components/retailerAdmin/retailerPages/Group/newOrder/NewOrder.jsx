@@ -63,7 +63,7 @@ export default function NewOrder() {
     retailer_code: user.data.retailer_code,
     retailerName: user.data.retailer_name,
     name: "",
-    customer_quantity: 0,
+    customer_quantity: 2,
     phone: "",
     order_items: {},
     product_quantity: 0,
@@ -610,10 +610,10 @@ export default function NewOrder() {
   }
 
   const handleCustomerQuantity = (e) => {
-    if (e.target.value < 1) {
+    if (e.target.value < 2) {
       setSnackbarOpen(true);
       setError(true);
-      setErrorMsg("Customers Quantity cannot be less than 0");
+      setErrorMsg("Customers Quantity cannot be less than 2");
     } else {
       if (e.target.value < customerArray.length) {
         setSnackbarOpen(true);
@@ -724,6 +724,7 @@ export default function NewOrder() {
                         // disabled={
                         //   !id || groupOrder.customer_quantity == 0 ? false : true
                         // }
+                          min="2"
                         />
                     }
 

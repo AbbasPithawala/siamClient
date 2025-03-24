@@ -25,47 +25,49 @@ export default function SingleOrderCustomerDetails(){
   const navigate = useNavigate();
   const [productFeaturesObject, setProductFeaturesObject] = useState({})
   const [products, setProducts] = useState([])
+  const [orders, setOrders] = useState([])
 
   useEffect(() => {
     fetchOrder(path)
     fetchProducts()
+    fetchOrders(path)
 
 
   }, [])
 // console.log("customer: ", order[0]['customers'])
-  const handlePrintPDF = async(e) => {
+  const handlePrintPDF = async(e, i) => {
     setGeneratePDFButton(true)
-    const newOrderObject = JSON.parse(JSON.stringify(order[0]))
-    const thisCustomer = order[0]['customers'].filter((customer) => customer['_id'] == e.target.dataset.customerid)
+    const newOrderObject = JSON.parse(JSON.stringify(orders[i]))
+    const thisCustomer = orders[i]['customer_id']
     delete newOrderObject['customers']
     delete newOrderObject['customer_quantity']
-    newOrderObject['customerName'] = thisCustomer[0]['firstname'] + " " + thisCustomer[0]['lastname']
-    newOrderObject['customer_id'] = thisCustomer[0]
-    if(thisCustomer[0]['manualSize']){
-      newOrderObject['manualSize'] = thisCustomer[0]['manualSize'] 
+    newOrderObject['customerName'] = thisCustomer['firstname'] + " " + thisCustomer['lastname']
+    newOrderObject['customer_id'] = thisCustomer
+    if(thisCustomer['manualSize']){
+      newOrderObject['manualSize'] = thisCustomer['manualSize'] 
     }
-    if(thisCustomer[0]['measurementsObject']){
-      newOrderObject['measurements'] = thisCustomer[0]['measurementsObject']
+    if(thisCustomer['measurementsObject']){
+      newOrderObject['measurements'] = thisCustomer['measurementsObject']
     }
-    if(thisCustomer[0]['tag']){
-      newOrderObject['tag'] = thisCustomer[0]['tag']
+    if(thisCustomer['tag']){
+      newOrderObject['tag'] = thisCustomer['tag']
     }else{
       newOrderObject['tag'] = ""
 
     }
     
-    for(let x of order[0]['order_items']){
+    for(let x of orders[i]['order_items']){
       if(x['item_name'] == "suit"){
         const suitMeas = {
-          jacket: thisCustomer[0]['measurementsObject']['jacket'],
-          pant: thisCustomer[0]['measurementsObject']['pant']
+          jacket: thisCustomer['measurementsObject']['jacket'],
+          pant: thisCustomer['measurementsObject']['pant']
         }
         newOrderObject['Suitmeasurements'] = suitMeas
       }
     }
     // console
     let draftMeasurementsObj = {}
-      const existingOrders = await axiosInstance2.post("/customerOrders/fetchCustomerOrders/" + thisCustomer[0]['_id'], {token: user.data.token})
+      const existingOrders = await axiosInstance2.post("/customerOrders/fetchCustomerOrders/" + thisCustomer['_id'], {token: user.data.token})
 
 // console.log("existing orders ", existingOrders)
   
@@ -90,7 +92,6 @@ export default function SingleOrderCustomerDetails(){
 
   const exportPDF = async (thisOrder, draftMeasurementsObj) => {
     
-console.log("order: ", thisOrder)
     let orderItemsArrayPDF = [];
 
     let justAnArray = [];
@@ -284,7 +285,7 @@ console.log("order: ", thisOrder)
     const productFeaturesObjectString = JSON.stringify(productFeaturesObject)
     const draftMeasurementsObjString = JSON.stringify(draftMeasurementsObj)
 
-    const pdfString = await axiosInstance2.post('groupOrders/createPdf', {
+    const pdfString = await axiosInstance2.post('customerOrders/createPdf', {
       token: user.data.token,
       productFeaturesObject: productFeaturesObjectString,
       orderItemsArray: orderItemsArrayPDFString, 
@@ -293,7 +294,6 @@ console.log("order: ", thisOrder)
       order: JSON.stringify(thisOrder),
       retailer: JSON.stringify(res1.data.data[0])
     })
-    console.log(pdfString)
     if(pdfString.data.status === true){
       setGeneratePDFButton(false)
       // setSnackbarOpen(true);
@@ -330,7 +330,12 @@ console.log("order: ", thisOrder)
     setOrder(res.data.data)
   }
 
-  console.log("order: ", order)
+  const fetchOrders = async(id) => {
+    const res = await axiosInstance.post("/customerOrders/fetchGroupOrder/" + id, {token: user.data.token})
+    setOrders(res.data.data)
+  }
+
+  console.log("orders: ", orders)
   
   const fetchProducts = async () => {
     const res = await axiosInstance.post("/product/fetchAll/0/0", {
@@ -361,11 +366,12 @@ console.log("order: ", thisOrder)
             <h3><span>Group Name:</span> {order[0] !== undefined ? order[0]['name'].toUpperCase() : ""}</h3>
             <h3><span>Retailer:</span>{order[0] !== undefined ? order[0]['retailerName'].toUpperCase() : ""}</h3>
           </div>
+          
           <div className="customerDetails">
 
-            {order[0] !==undefined
+            {orders.length > 0
             ?
-            order[0]['order_items'].map((item, i) => {
+            orders[0]['groupOrderID']['order_items'].map((item, i) => {
               return(
                 <p key={i}> {item['quantity'] + " "}<span style={{textTransform: "capitalize"}}>{item['item_name']}</span> </p>
               )
@@ -380,25 +386,27 @@ console.log("order: ", thisOrder)
             <table>
               <thead>
                     <th><strong>S No. </strong></th>
+                    <th><strong>Order Id </strong></th>
                     <th><strong>Customer Name </strong></th>
                     <th><strong>Generate</strong></th>
                     <th><strong>Print / Edit </strong></th>
               </thead>
               <tbody>
-                    {order[0] !== undefined
+                    {orders.length > 0
                     ?
-                    order[0]['customers'].map((customer, index) => {
+                    orders.map((order, index) => {
                       return(
-                        <tr key={customer['_id']}>
+                        <tr key={order['_id']}>
                           <td>{index + 1}</td>
-                          <td><span style={{textTransform: "capitalize"}}>{customer['firstname']}</span>{" "}<span style={{textTransform: "capitalize"}}>{customer['lastname']}</span></td>
-                          <td> <span className="generatePDf" onClick={handlePrintPDF} data-customerId = {customer['_id']} style={{color: "#1C4D8F", fontWeight: "600"}}>Generate</span></td>
+                          <td><span style={{textTransform: "capitalize"}}>{order.orderId}</span></td>
+                          <td><span style={{textTransform: "capitalize"}}>{order['customerName']}</span></td>
+                          <td> <span className="generatePDf" onClick={(e) => handlePrintPDF(e, index)} data-customerId = {order['_id']} style={{color: "#1C4D8F", fontWeight: "600"}}>Generate</span></td>
                           {
-                          order[0]['pdf'] && order[0]['pdf'][customer['_id']]
+                          order['pdf']
                           ?
-                          <td> <span className="generatePDf action" onClick={() => handleOpenPdf(order[0]['pdf'][customer['_id']])} target="_blank" rel="noreferrer" data-customerId = {customer['_id']} style={{color: "#1C4D8F", fontWeight: "600"}}>View</span></td>
+                          <td> <span className="generatePDf action" onClick={() => handleOpenPdf(order['pdf'])} target="_blank" rel="noreferrer" data-customerId = {order['_id']} style={{color: "#1C4D8F", fontWeight: "600"}}>View</span></td>
                           :
-                          <td> <span target="_blank" rel="noreferrer" className="action" data-customerId = {customer['_id']} style={{color: "#1C4D8F", fontWeight: "600"}}>N/A</span></td>
+                          <td> <span target="_blank" rel="noreferrer" className="action" data-customerId = {order['_id']} style={{color: "#1C4D8F", fontWeight: "600"}}>N/A</span></td>
                           }                          
                         </tr>
                       )

@@ -731,6 +731,7 @@ export default function Order() {
                 {/* <th>Retailer</th> */}
                 <th>Order #</th>
                 <th>CUST NAME</th>
+                <th> Type </th>
                 <th>Order Date</th>
                 <th>QTY</th>
                 {statusName !== "Ready for Shipment" && statusName !== "Sent" 
@@ -774,6 +775,14 @@ export default function Order() {
                         {/* <td>{order.retailerName ? order.retailerName.charAt(0).toUpperCase() + order.retailerName.slice(1) : ""}</td> */}
                         <td>{order.orderId}</td>
                         <td>{order.customerName ? order.customerName.charAt(0).toUpperCase() + order.customerName.slice(1) : ""}</td>
+                      <td> {order.type  == "group"?     
+                            <span className="ModifiedBg" style={{textTransform: "capitalize"}}>
+                              {order.type}
+                            </span> : 
+                            <span className="newOrderBg" style={{textTransform: "capitalize"}}>
+                              Normal
+                            </span> 
+                            } </td>
                         <td>{order.OrderDate}</td>
                         <td className="orderQuantity">
                           <span 

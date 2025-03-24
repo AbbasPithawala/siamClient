@@ -344,64 +344,132 @@ export default function ManageJobs() {
 
     let totalCost = ArrayPDF['cost']
     let htmlElement = (
-      <>
-        <div style={{ width: "800px", marginLeft: '250px', marginRight: '250px', position: 'relative' }}>
-          <div style={{ width: "800px", margin: 'auto' }}>
-            <div className="logo" style={{ width: "200px", position: 'relative', textAlign: 'center' }}>
-              <img src={Logo} style={{ width: "80px" }} />
-              <h4 style={{ margin: "0", display: 'block', position: 'relative' }}>Siam Suits Supply</h4>
-            </div>
-            <div className="qr" style={{ width: "200px", position: 'relative', textAlign: 'center' }}>
-              <img src={mainQR} style={{ width: "80px" }} />
-            </div>
-            <div style={{ width: '600px', position: 'relative', fontSize: "14px" }}>
-              <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}>Name: <span style={{ marginLeft: '50px' }}>{ArrayPDF['tailor']['firstname'] + " " + ArrayPDF['tailor']['lastname']}</span></div>
-              <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}>Date: <span style={{ marginLeft: '50px' }}>{new Date(ArrayPDF['date']).toLocaleDateString()}</span></div>
-              <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}>Order No.: <span style={{ marginLeft: '50px' }}>{ArrayPDF['order_id'] ? ArrayPDF['order_id']['orderId'] : ArrayPDF['group_order_id']['orderId']}</span></div>
-              <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px', fontSize: "12px" }}><strong>Category</strong> <span style={{ marginLeft: '50px' }}><strong>Price</strong></span></div>
-              <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px', textTransform: "capitalize", fontSize: "12px" }}>{ArrayPDF['process']['name']} <span style={{ marginLeft: '50px' }}>{ArrayPDF['cost']}</span></div>
-              {ArrayPDF['extraPayments'].length > 0
-                ?
-                <>
-                  <div className="qr-detail"><strong>Extra Category</strong> <span style={{ marginLeft: '50px' }}><strong>Price</strong></span></div>
-                  {
-                    ArrayPDF['extraPayments'].map((single) => {
-                      if (single['approved'] == true && single['status'] !== false) {
-                        totalCost = totalCost + single.cost
-                        return (
-                          <div className="qr-detail" style={{ textTransform: "capitalize", fontSize: "12px" }}>{single.nameOfCategory} <span style={{ marginLeft: '50px' }}>{single.cost}</span></div>
-                        )
-                      }
-                    })
-                  }
-                </>
-                :
-                <></>}
-              {
-                ArrayPDF['stylingprice'] && Object.keys(ArrayPDF['stylingprice']).length > 0
-                  ?
-                  <>
-                    <div className="qr-detail"><strong>Stylings</strong> <span style={{ marginLeft: '50px' }}><strong>Price</strong></span></div>
-                    {
-                      Object.keys(ArrayPDF['stylingprice']).map((single) => {
-                        totalCost = totalCost + ArrayPDF['stylingprice'][single]
-                        return (
-                          <div className="qr-detail" style={{ textTransform: "capitalize" }}>{single} <span style={{ marginLeft: '50px' }}>{ArrayPDF['stylingprice'][single]}</span></div>
-                        )
-                      })
-                    }
-                  </>
-                  :
-                  <></>
-              }
-              {/* <div className="qr-detail"><strong>Extra Category</strong> <span style={{marginLeft:'50px'}}><strong>Price</strong></span></div> 
-            <div className="qr-detail">HIDDEN POCKET <span style={{marginLeft:'50px'}}>10</span></div>  */}
-              <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}><span style={{ marginLeft: '50px' }}><strong>Total : {totalCost}</strong></span></div>
-              {/* <div className="qr-detail"  style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}><strong>Authorized by</strong> <span style={{marginLeft:'50px'}}>s</span></div> */}
-            </div>
-          </div>
+      <div style={{ width: "290mm", margin: "0 auto", padding: "10px" }}>
+      <div style={{ textAlign: "center", marginBottom: "10px" }}>
+        <div className="logo" style={{ width: "100px", margin: "0 auto" }}>
+          <img src={Logo} alt="Logo" style={{ width: "50px" }} />
+          <h4 style={{ margin: 0 }}>Siam Suits Supply</h4>
         </div>
-      </>
+        <div className="qr" style={{ width: "100px", margin: "10px auto" }}>
+          <img src={mainQR} alt="QR Code" style={{ width: "50px" }} />
+        </div>
+      </div>
+
+      <div style={{ fontSize: "12px" }}>
+        <div style={{ marginBottom: "5px" }}>
+          <strong>Name:</strong> {ArrayPDF['tailor']['firstname']} {ArrayPDF['tailor']['lastname']}
+        </div>
+        <div style={{ marginBottom: "5px" }}>
+          <strong>Date:</strong> {new Date(ArrayPDF['date']).toLocaleDateString()}
+        </div>
+        <div style={{ marginBottom: "5px" }}>
+          <strong>Order No.:</strong> {ArrayPDF['order_id'] ? ArrayPDF['order_id']['orderId'] : ArrayPDF['group_order_id']['orderId']}
+        </div>
+      </div>
+
+      <div style={{ fontSize: "12px", marginTop: "10px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+          <strong>Category</strong>
+          <strong>Price</strong>
+        </div>
+        <div style={{ textTransform: "capitalize" }}>
+          {ArrayPDF['process']['name']} <span>{ArrayPDF['cost']}</span>
+        </div>
+
+        {ArrayPDF['extraPayments'].length > 0 && (
+          <>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+              <strong>Extra Category</strong>
+              <strong>Price</strong>
+            </div>
+            {ArrayPDF['extraPayments'].map((single) => (
+              single['approved'] && single['status'] !== false && (
+                <div key={single.nameOfCategory} style={{ textTransform: "capitalize" }}>
+                  {single.nameOfCategory} <span>{single.cost}</span>
+                </div>
+              )
+            ))}
+          </>
+        )}
+
+        {ArrayPDF['stylingprice'] && Object.keys(ArrayPDF['stylingprice']).length > 0 && (
+          <>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+              <strong>Stylings</strong>
+              <strong>Price</strong>
+            </div>
+            {Object.keys(ArrayPDF['stylingprice']).map((single) => (
+              <div key={single} style={{ textTransform: "capitalize" }}>
+                {single} <span>{ArrayPDF['stylingprice'][single]}</span>
+              </div>
+            ))}
+          </>
+        )}
+
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+          <strong>Total:</strong>
+          <span>{totalCost}</span>
+        </div>
+      </div>
+    </div>
+      // <>
+      //   <div style={{ width: "800px", marginLeft: '250px', marginRight: '250px', position: 'relative' }}>
+      //     <div style={{ width: "800px", margin: 'auto' }}>
+      //       <div className="logo" style={{ width: "200px", position: 'relative', textAlign: 'center' }}>
+      //         <img src={Logo} style={{ width: "80px" }} />
+      //         <h4 style={{ margin: "0", display: 'block', position: 'relative' }}>Siam Suits Supply</h4>
+      //       </div>
+      //       <div className="qr" style={{ width: "200px", position: 'relative', textAlign: 'center' }}>
+      //         <img src={mainQR} style={{ width: "80px" }} />
+      //       </div>
+      //       <div style={{ width: '600px', position: 'relative', fontSize: "14px" }}>
+      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}>Name: <span style={{ marginLeft: '50px' }}>{ArrayPDF['tailor']['firstname'] + " " + ArrayPDF['tailor']['lastname']}</span></div>
+      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}>Date: <span style={{ marginLeft: '50px' }}>{new Date(ArrayPDF['date']).toLocaleDateString()}</span></div>
+      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}>Order No.: <span style={{ marginLeft: '50px' }}>{ArrayPDF['order_id'] ? ArrayPDF['order_id']['orderId'] : ArrayPDF['group_order_id']['orderId']}</span></div>
+      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px', fontSize: "12px" }}><strong>Category</strong> <span style={{ marginLeft: '50px' }}><strong>Price</strong></span></div>
+      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px', textTransform: "capitalize", fontSize: "12px" }}>{ArrayPDF['process']['name']} <span style={{ marginLeft: '50px' }}>{ArrayPDF['cost']}</span></div>
+      //         {ArrayPDF['extraPayments'].length > 0
+      //           ?
+      //           <>
+      //             <div className="qr-detail"><strong>Extra Category</strong> <span style={{ marginLeft: '50px' }}><strong>Price</strong></span></div>
+      //             {
+      //               ArrayPDF['extraPayments'].map((single) => {
+      //                 if (single['approved'] == true && single['status'] !== false) {
+      //                   totalCost = totalCost + single.cost
+      //                   return (
+      //                     <div className="qr-detail" style={{ textTransform: "capitalize", fontSize: "12px" }}>{single.nameOfCategory} <span style={{ marginLeft: '50px' }}>{single.cost}</span></div>
+      //                   )
+      //                 }
+      //               })
+      //             }
+      //           </>
+      //           :
+      //           <></>}
+      //         {
+      //           ArrayPDF['stylingprice'] && Object.keys(ArrayPDF['stylingprice']).length > 0
+      //             ?
+      //             <>
+      //               <div className="qr-detail"><strong>Stylings</strong> <span style={{ marginLeft: '50px' }}><strong>Price</strong></span></div>
+      //               {
+      //                 Object.keys(ArrayPDF['stylingprice']).map((single) => {
+      //                   totalCost = totalCost + ArrayPDF['stylingprice'][single]
+      //                   return (
+      //                     <div className="qr-detail" style={{ textTransform: "capitalize" }}>{single} <span style={{ marginLeft: '50px' }}>{ArrayPDF['stylingprice'][single]}</span></div>
+      //                   )
+      //                 })
+      //               }
+      //             </>
+      //             :
+      //             <></>
+      //         }
+      //         {/* <div className="qr-detail"><strong>Extra Category</strong> <span style={{marginLeft:'50px'}}><strong>Price</strong></span></div> 
+      //       <div className="qr-detail">HIDDEN POCKET <span style={{marginLeft:'50px'}}>10</span></div>  */}
+      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}><span style={{ marginLeft: '50px' }}><strong>Total : {totalCost}</strong></span></div>
+      //         {/* <div className="qr-detail"  style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}><strong>Authorized by</strong> <span style={{marginLeft:'50px'}}>s</span></div> */}
+      //       </div>
+      //     </div>
+      //   </div>
+      // </>
     )
 
     // let html2 = (
@@ -440,6 +508,50 @@ export default function ManageJobs() {
     });
   }
 
+  const generatePDF = () => {
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: [80, 290], // width: 80mm, height: 290mm
+    });
+
+    // Add logo and header text
+    doc.setFontSize(12);
+    doc.addImage(Logo, 'PNG', 30, 5, 20, 20); // Centered logo
+    doc.text('Siam Suits Supply', 40, 30, { align: 'center' });
+
+    // QR code and main order info
+    doc.addImage(mainQR, 'PNG', 30, 35, 20, 20);
+    doc.setFontSize(10);
+    doc.text('Name: John Doe', 5, 60);
+    doc.text('Date: 1/7/2024', 5, 67);
+    doc.text('Order No.: TST-birthday-0001', 5, 74);
+
+    // Order Details Section
+    doc.setFontSize(10);
+    doc.text('Category', 5, 85);
+    doc.text('Price', 65, 85, { align: 'right' });
+
+    // Order items dynamically (Example Items)
+    const items = [
+      { category: 'Jacket Sleeves', price: '100' },
+      { category: 'Extra Stitching', price: '40' },
+    ];
+    let yPos = 95; // Initial position for item entries
+    items.forEach((item) => {
+      doc.text(item.category, 5, yPos);
+      doc.text(item.price, 65, yPos, { align: 'right' });
+      yPos += 7; // Space between items
+    });
+
+    // Total Section
+    doc.setFontSize(12);
+    doc.text('Total:', 5, yPos + 5);
+    doc.text('140', 65, yPos + 5, { align: 'right' });
+
+    // Save the PDF
+    doc.save('order-slip.pdf');
+  };
   const handleAddQrCode = (e) => {
     if (!qrCode.length > 0) {
       setError(true)
@@ -800,7 +912,7 @@ export default function ManageJobs() {
                           </td>
                           <td>
                               <span><EditIcon onClick={(e) => { handleSelectJob("job", job['_id'])}} style={{ marginRight: "5px", color: "#1C4D8F", fontSize: "20px", cursor: "pointer"}}/></span>
-                               <span><PictureAsPdfIcon onClick={(e) => { exportPDF("job", job['_id']); }} style={{ marginRight: "5px", color: "#1C4D8F", fontSize: "20px", cursor: "pointer"}}/></span>
+                               <span><PictureAsPdfIcon onClick={(e) => { generatePDF("job", job['_id']); }} style={{ marginRight: "5px", color: "#1C4D8F", fontSize: "20px", cursor: "pointer"}}/></span>
 
                           </td>
                         </tr>
