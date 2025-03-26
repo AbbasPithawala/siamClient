@@ -1013,7 +1013,7 @@ export default function NewOrder() {
               >
                 Save Draft
               </button>}
-            {groupOrder['customers'] && groupOrder['customers'].length == groupOrder.customer_quantity ? (
+            {!groupOrder['orderPlaced'] && groupOrder['customers'] && groupOrder['customers'].length == groupOrder.customer_quantity ? (
               <button
                 type="button"
                 className="custom-btn ml-15"

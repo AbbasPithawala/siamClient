@@ -280,7 +280,7 @@ export default function SingleOrderCustomerDetails(){
     const productFeaturesObjectString = JSON.stringify(productFeaturesObject)
     const draftMeasurementsObjString = JSON.stringify(draftMeasurementsObj)
 
-    const pdfString = await axiosInstance2.post('groupOrders/createPdf', {
+    const pdfString = await axiosInstance2.post('customerOrders/createPdf', {
       token: user.data.token,
       productFeaturesObject: productFeaturesObjectString,
       orderItemsArray: orderItemsArrayPDFString, 

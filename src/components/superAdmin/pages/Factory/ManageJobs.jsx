@@ -19,7 +19,7 @@ import jsPDF from "jspdf";
 import Logo from "../../../../images/logo.png";
 import mainQR from "../../../../images/PDFQR.png";
 import EditIcon from '@mui/icons-material/Edit';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import PrintIcon from '@mui/icons-material/Print';
 
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -345,73 +345,73 @@ export default function ManageJobs() {
     let totalCost = ArrayPDF['cost']
     let htmlElement = (
       <div style={{ width: "290mm", margin: "0 auto", padding: "10px" }}>
-      <div style={{ textAlign: "center", marginBottom: "10px" }}>
-        <div className="logo" style={{ width: "100px", margin: "0 auto" }}>
-          <img src={Logo} alt="Logo" style={{ width: "50px" }} />
-          <h4 style={{ margin: 0 }}>Siam Suits Supply</h4>
-        </div>
-        <div className="qr" style={{ width: "100px", margin: "10px auto" }}>
-          <img src={mainQR} alt="QR Code" style={{ width: "50px" }} />
-        </div>
-      </div>
-
-      <div style={{ fontSize: "12px" }}>
-        <div style={{ marginBottom: "5px" }}>
-          <strong>Name:</strong> {ArrayPDF['tailor']['firstname']} {ArrayPDF['tailor']['lastname']}
-        </div>
-        <div style={{ marginBottom: "5px" }}>
-          <strong>Date:</strong> {new Date(ArrayPDF['date']).toLocaleDateString()}
-        </div>
-        <div style={{ marginBottom: "5px" }}>
-          <strong>Order No.:</strong> {ArrayPDF['order_id'] ? ArrayPDF['order_id']['orderId'] : ArrayPDF['group_order_id']['orderId']}
-        </div>
-      </div>
-
-      <div style={{ fontSize: "12px", marginTop: "10px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
-          <strong>Category</strong>
-          <strong>Price</strong>
-        </div>
-        <div style={{ textTransform: "capitalize" }}>
-          {ArrayPDF['process']['name']} <span>{ArrayPDF['cost']}</span>
+        <div style={{ textAlign: "center", marginBottom: "10px" }}>
+          <div className="logo" style={{ width: "100px", margin: "0 auto" }}>
+            <img src={Logo} alt="Logo" style={{ width: "50px" }} />
+            <h4 style={{ margin: 0 }}>Siam Suits Supply</h4>
+          </div>
+          <div className="qr" style={{ width: "100px", margin: "10px auto" }}>
+            <img src={mainQR} alt="QR Code" style={{ width: "50px" }} />
+          </div>
         </div>
 
-        {ArrayPDF['extraPayments'].length > 0 && (
-          <>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
-              <strong>Extra Category</strong>
-              <strong>Price</strong>
-            </div>
-            {ArrayPDF['extraPayments'].map((single) => (
-              single['approved'] && single['status'] !== false && (
-                <div key={single.nameOfCategory} style={{ textTransform: "capitalize" }}>
-                  {single.nameOfCategory} <span>{single.cost}</span>
-                </div>
-              )
-            ))}
-          </>
-        )}
+        <div style={{ fontSize: "12px" }}>
+          <div style={{ marginBottom: "5px" }}>
+            <strong>Name:</strong> {ArrayPDF['tailor']['firstname']} {ArrayPDF['tailor']['lastname']}
+          </div>
+          <div style={{ marginBottom: "5px" }}>
+            <strong>Date:</strong> {new Date(ArrayPDF['date']).toLocaleDateString()}
+          </div>
+          <div style={{ marginBottom: "5px" }}>
+            <strong>Order No.:</strong> {ArrayPDF['order_id'] ? ArrayPDF['order_id']['orderId'] : ArrayPDF['group_order_id']['orderId']}
+          </div>
+        </div>
 
-        {ArrayPDF['stylingprice'] && Object.keys(ArrayPDF['stylingprice']).length > 0 && (
-          <>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
-              <strong>Stylings</strong>
-              <strong>Price</strong>
-            </div>
-            {Object.keys(ArrayPDF['stylingprice']).map((single) => (
-              <div key={single} style={{ textTransform: "capitalize" }}>
-                {single} <span>{ArrayPDF['stylingprice'][single]}</span>
+        <div style={{ fontSize: "12px", marginTop: "10px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+            <strong>Category</strong>
+            <strong>Price</strong>
+          </div>
+          <div style={{ textTransform: "capitalize" }}>
+            {ArrayPDF['process']['name']} <span>{ArrayPDF['cost']}</span>
+          </div>
+
+          {ArrayPDF['extraPayments'].length > 0 && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+                <strong>Extra Category</strong>
+                <strong>Price</strong>
               </div>
-            ))}
-          </>
-        )}
+              {ArrayPDF['extraPayments'].map((single) => (
+                single['approved'] && single['status'] !== false && (
+                  <div key={single.nameOfCategory} style={{ textTransform: "capitalize" }}>
+                    {single.nameOfCategory} <span>{single.cost}</span>
+                  </div>
+                )
+              ))}
+            </>
+          )}
 
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
-          <strong>Total:</strong>
-          <span>{totalCost}</span>
+          {ArrayPDF['stylingprice'] && Object.keys(ArrayPDF['stylingprice']).length > 0 && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+                <strong>Stylings</strong>
+                <strong>Price</strong>
+              </div>
+              {Object.keys(ArrayPDF['stylingprice']).map((single) => (
+                <div key={single} style={{ textTransform: "capitalize" }}>
+                  {single} <span>{ArrayPDF['stylingprice'][single]}</span>
+                </div>
+              ))}
+            </>
+          )}
+
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+            <strong>Total:</strong>
+            <span>{totalCost}</span>
+          </div>
         </div>
       </div>
-    </div>
       // <>
       //   <div style={{ width: "800px", marginLeft: '250px', marginRight: '250px', position: 'relative' }}>
       //     <div style={{ width: "800px", margin: 'auto' }}>
@@ -508,49 +508,142 @@ export default function ManageJobs() {
     });
   }
 
-  const generatePDF = () => {
+  const generatePDF = (jobType, job_id) => {
+    let ArrayPDF = {}
+    if (jobType == 'job') {
+      const jobArr = jobs.filter((job) => job['_id'] == job_id)
+      ArrayPDF = jobArr[0]
+    }
+    
+
+
+    if (ArrayPDF['extraPayments'].length > 0) {
+      for (let x of ArrayPDF['extraPayments']) {
+
+        const category = extraPaymentCategories.filter((single) => single['_id'] == x['extraPaymentCategory'])
+        x['nameOfCategory'] = category[0]['name']
+        if(category[0]['thai_name']){
+          x['thai_catergory_name'] = category[0]['thai_name']
+        }
+      }
+    }
+    console.log(ArrayPDF)
+
+    let totalCost = ArrayPDF['cost']
+    if (ArrayPDF['extraPayments'].length > 0) {
+      for (let x of ArrayPDF['extraPayments']) {
+
+        if (x['approved'] && x['status'] !== false) {
+          totalCost = totalCost + x.cost;
+        }
+      }
+    }
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: [80, 290], // width: 80mm, height: 290mm
     });
 
-    // Add logo and header text
-    doc.setFontSize(12);
-    doc.addImage(Logo, 'PNG', 30, 5, 20, 20); // Centered logo
-    doc.text('Siam Suits Supply', 40, 30, { align: 'center' });
+    function toTitleCase(text) {
+      return text
+        .toLowerCase() // Convert all text to lowercase first
+        .split(' ') // Split the text into words
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
+        .join(' '); // Join the words back into a string
+    }
 
-    // QR code and main order info
-    doc.addImage(mainQR, 'PNG', 30, 35, 20, 20);
+    // Add logo with reduced space above
+    doc.addImage(Logo, 'PNG', 25, 2, 30, 10); // Reduced space from the top
+
+    // Header text
+    doc.setFontSize(12);
+    // doc.text('Siam Suits Supply', 40, 22, { align: 'center' }); // Adjusted y-position for tighter spacing
+
+    // QR code and main order info with reduced line height
+    doc.addImage(mainQR, 'PNG', 30, 17, 20, 20);
     doc.setFontSize(10);
-    doc.text('Name: John Doe', 5, 60);
-    doc.text('Date: 1/7/2024', 5, 67);
-    doc.text('Order No.: TST-birthday-0001', 5, 74);
+    doc.text(`Name: ${ArrayPDF['tailor']['firstname']} ${ArrayPDF['tailor']['lastname']}`, 5, 45);  // Move text up slightly
+    doc.text(`Date: ${new Date(ArrayPDF['date']).toLocaleDateString()}`, 5, 51);  // Reduced line height
+    doc.text(`Order No.: ${ArrayPDF['order_id'] ? ArrayPDF['order_id']['orderId'] : ArrayPDF['group_order_id']['orderId']}`, 5, 57); // Reduced line height
 
     // Order Details Section
     doc.setFontSize(10);
-    doc.text('Category', 5, 85);
-    doc.text('Price', 65, 85, { align: 'right' });
+    doc.setFont('helvetica', 'bold');
+    doc.text('Category', 5, 67);  // Adjusted position
+    doc.text('Price', 65, 67, { align: 'right' });
 
-    // Order items dynamically (Example Items)
-    const items = [
-      { category: 'Jacket Sleeves', price: '100' },
-      { category: 'Extra Stitching', price: '40' },
-    ];
-    let yPos = 95; // Initial position for item entries
-    items.forEach((item) => {
-      doc.text(item.category, 5, yPos);
-      doc.text(item.price, 65, yPos, { align: 'right' });
-      yPos += 7; // Space between items
-    });
+
+    doc.setFont('helvetica', 'normal');
+
+    doc.text(`${toTitleCase(ArrayPDF['process']['name'])}`, 5, 75);
+    
+    let yPos = 85;
+
+    // if(ArrayPDF['process']['thai_name']){
+    //   // doc.setFont('THSarabunNew');
+    
+    //   doc.text(ArrayPDF['process']['thai_name'], 5, yPos);
+    //   yPos += 5; // Tighter line height (5 instead of 7)
+    // }
+    
+    doc.setFont('helvetica','normal');
+    doc.text(`${ArrayPDF['cost']}`, 65, 75, { align: 'right' });
+
+
+    if (ArrayPDF['extraPayments'].length > 0) {
+
+      doc.setFont('helvetica', 'bold');
+      doc.text('Extra Category', 5, yPos);  // Adjusted position
+      doc.text('Price', 65, yPos, { align: 'right' });
+
+      doc.setFont('helvetica', 'normal');
+      yPos += 7
+      ArrayPDF['extraPayments'].forEach((item) => {
+        if (item['approved'] && item['status'] !== false) {
+          doc.text(toTitleCase(item.nameOfCategory), 5, yPos);
+          doc.text(String(item.cost), 65, yPos, { align: 'right' });
+          yPos += 5; // Tighter line height (5 instead of 7)
+          if(item['thai_category_name']){
+            doc.text(item.thai_category_name, 5, yPos);
+            yPos += 5; // Tighter line height (5 instead of 7)
+          }
+        }
+      });
+    }
+
+
+    if (ArrayPDF['stylingprice'] && Object.keys(ArrayPDF['stylingprice']).length > 0) {
+
+      doc.setFont('helvetica', 'bold');
+      doc.text('Stylings', 5, yPos);  // Adjusted position
+      doc.text('Price', 65, yPos, { align: 'right' });
+
+      doc.setFont('helvetica', 'normal');
+      yPos += 7
+      Object.keys(ArrayPDF['stylingprice']).forEach((item) => {
+        if (item['approved'] && item['status'] !== false) {
+          doc.text(item, 5, yPos);
+          doc.text(String(ArrayPDF['stylingprice'].item), 65, yPos, { align: 'right' });
+          yPos += 5; // Tighter line height (5 instead of 7)
+        }
+      });
+    }
+
 
     // Total Section
+    
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.text('Total:', 5, yPos + 5);
-    doc.text('140', 65, yPos + 5, { align: 'right' });
+    doc.text(String(totalCost), 65, yPos + 5, { align: 'right' });
 
-    // Save the PDF
-    doc.save('order-slip.pdf');
+    // Save the PDF and open as Blob URL
+    const pdfBlob = doc.output('blob');
+    const blobUrl = URL.createObjectURL(pdfBlob);
+    window.open(blobUrl);
+
+
+
   };
   const handleAddQrCode = (e) => {
     if (!qrCode.length > 0) {
@@ -602,7 +695,7 @@ export default function ManageJobs() {
     setJobId(job_id)
     setShowRetailers(true)
   }
-  const handleOpenDeleteDialog = (e) =>{
+  const handleOpenDeleteDialog = (e) => {
     setJobId(e.target.dataset.jobid)
     setOpenDeleteDialog(true)
   }
@@ -736,7 +829,7 @@ export default function ManageJobs() {
       setError(false)
       setSuccess(true)
       setSuccessMsg(res.data.message)
-    }else{
+    } else {
       setError(true)
       setSuccess(false)
       setErrorMsg(res.data.message)
@@ -789,7 +882,7 @@ export default function ManageJobs() {
                 <input type="date" className="searchinput" onChange={(e) => setEndDate(e.target.value)} />
               </div>
             </div>
-            <div style={{ display: 'inline-flex' }}>
+            <div style={{ display: 'inline-flex', alignItems: "center", justifyContent: "space-between"}}>
               <div className="searchinput-inner">
                 <p>Worker Name</p>
                 <select
@@ -828,6 +921,9 @@ export default function ManageJobs() {
                 :
                 <></>
               }
+              <div className="searchinput-inner" style={{marginTop: "30px", marginRight: "30px"}}>
+                <p style={{fontSize: "20px", color: "black"}}>Total No. : {showJobs && jobs.length > 0 ? jobs.length : 0}</p>
+              </div>
             </div>
           </div>
           {showJobs
@@ -911,8 +1007,8 @@ export default function ManageJobs() {
                             />
                           </td>
                           <td>
-                              <span><EditIcon onClick={(e) => { handleSelectJob("job", job['_id'])}} style={{ marginRight: "5px", color: "#1C4D8F", fontSize: "20px", cursor: "pointer"}}/></span>
-                               <span><PictureAsPdfIcon onClick={(e) => { generatePDF("job", job['_id']); }} style={{ marginRight: "5px", color: "#1C4D8F", fontSize: "20px", cursor: "pointer"}}/></span>
+                            <span><EditIcon onClick={(e) => { handleSelectJob("job", job['_id']) }} style={{ marginRight: "5px", color: "#1C4D8F", fontSize: "20px", cursor: "pointer" }} /></span>
+                            <span><PrintIcon onClick={(e) => { generatePDF("job", job['_id']); }} style={{ marginRight: "5px", color: "#1C4D8F", fontSize: "20px", cursor: "pointer" }} /></span>
 
                           </td>
                         </tr>
@@ -1116,12 +1212,12 @@ export default function ManageJobs() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">{"Delete this job?"}</DialogTitle>
-        <div style={{padding: "0 25px"}}>
-         <p>Are you sure you want to delete this Job ?</p>
+        <div style={{ padding: "0 25px" }}>
+          <p>Are you sure you want to delete this Job ?</p>
         </div>
         <DialogActions>
-        <button className="custom-btn-new" onClick={() => handleDeleteJob()}>Delete</button>
-          <button className="custom-btn-new"  onClick={() => setOpenDeleteDialog(false)}>Cancel</button>
+          <button className="custom-btn-new" onClick={() => handleDeleteJob()}>Delete</button>
+          <button className="custom-btn-new" onClick={() => setOpenDeleteDialog(false)}>Cancel</button>
         </DialogActions>
       </Dialog>
 
