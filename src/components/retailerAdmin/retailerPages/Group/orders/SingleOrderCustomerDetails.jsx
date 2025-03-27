@@ -15,8 +15,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 // import 'single';
 
-export default function SingleOrderCustomerDetails(){
-  
+export default function SingleOrderCustomerDetails() {
+
   const location = useLocation();
   const path = location.pathname.split("/")[3];
   const [order, setOrder] = useState([]);
@@ -34,8 +34,8 @@ export default function SingleOrderCustomerDetails(){
 
 
   }, [])
-// console.log("customer: ", order[0]['customers'])
-  const handlePrintPDF = async(e, i) => {
+  // console.log("customer: ", order[0]['customers'])
+  const handlePrintPDF = async (e, i) => {
     setGeneratePDFButton(true)
     const newOrderObject = JSON.parse(JSON.stringify(orders[i]))
     const thisCustomer = orders[i]['customer_id']
@@ -43,21 +43,21 @@ export default function SingleOrderCustomerDetails(){
     delete newOrderObject['customer_quantity']
     newOrderObject['customerName'] = thisCustomer['firstname'] + " " + thisCustomer['lastname']
     newOrderObject['customer_id'] = thisCustomer
-    if(thisCustomer['manualSize']){
-      newOrderObject['manualSize'] = thisCustomer['manualSize'] 
+    if (thisCustomer['manualSize']) {
+      newOrderObject['manualSize'] = thisCustomer['manualSize']
     }
-    if(thisCustomer['measurementsObject']){
+    if (thisCustomer['measurementsObject']) {
       newOrderObject['measurements'] = thisCustomer['measurementsObject']
     }
-    if(thisCustomer['tag']){
+    if (thisCustomer['tag']) {
       newOrderObject['tag'] = thisCustomer['tag']
-    }else{
+    } else {
       newOrderObject['tag'] = ""
 
     }
-    
-    for(let x of orders[i]['order_items']){
-      if(x['item_name'] == "suit"){
+
+    for (let x of orders[i]['order_items']) {
+      if (x['item_name'] == "suit") {
         const suitMeas = {
           jacket: thisCustomer['measurementsObject']['jacket'],
           pant: thisCustomer['measurementsObject']['pant']
@@ -67,31 +67,30 @@ export default function SingleOrderCustomerDetails(){
     }
     // console
     let draftMeasurementsObj = {}
-      const existingOrders = await axiosInstance2.post("/customerOrders/fetchCustomerOrders/" + thisCustomer['_id'], {token: user.data.token})
+    const existingOrders = await axiosInstance2.post("/customerOrders/fetchCustomerOrders/" + thisCustomer['_id'], { token: user.data.token })
 
-// console.log("existing orders ", existingOrders)
-  
-      if(existingOrders.data.status == true){
-        let ind = 0;
-        let ourIndex ;
-        for(let x of existingOrders.data.data){
-          if(x['_id'] == order){
-            ourIndex = ind
-          }
-          ind = ind + 1
-        }  
-        if(existingOrders.data.data.length > 1)
-        {
-          draftMeasurementsObj = existingOrders.data.data[0]['measurements']
+    // console.log("existing orders ", existingOrders)
+
+    if (existingOrders.data.status == true) {
+      let ind = 0;
+      let ourIndex;
+      for (let x of existingOrders.data.data) {
+        if (x['_id'] == order) {
+          ourIndex = ind
         }
+        ind = ind + 1
       }
+      if (existingOrders.data.data.length > 1) {
+        draftMeasurementsObj = existingOrders.data.data[0]['measurements']
+      }
+    }
 
     // }
     exportPDF(newOrderObject, draftMeasurementsObj)
   }
 
   const exportPDF = async (thisOrder, draftMeasurementsObj) => {
-    
+
     let orderItemsArrayPDF = [];
 
     let justAnArray = [];
@@ -102,7 +101,7 @@ export default function SingleOrderCustomerDetails(){
     //   "/customerOrders/fetchOrderByID/" + order,
     //   { token: user.data.token }
     // );
-    
+
 
 
     const res1 = await axiosInstance2.post('/retailer/fetch', {
@@ -130,7 +129,7 @@ export default function SingleOrderCustomerDetails(){
             quantity: m["quantity"],
             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
           };
-          orderItemsArray.push(itemsObject1);          
+          orderItemsArray.push(itemsObject1);
           orderItemsArray.push(itemsObject2);
         }
       } else {
@@ -180,7 +179,7 @@ export default function SingleOrderCustomerDetails(){
 
           let itemsObject2 = {
             item_name: m["item_name"],
-            item_code:  "pant " + n,
+            item_code: "pant " + n,
             quantity: m["quantity"],
             repeatOrder: thisOrder["repeatOrder"],
             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
@@ -225,38 +224,38 @@ export default function SingleOrderCustomerDetails(){
         for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
 
           let itemsObject1 = {
-             item_name: m["item_name"],
-             item_code: "jacket " + n,
-             quantity: m["quantity"],
-             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
-             measurementsObject: thisOrder.Suitmeasurements['jacket'],
-             manualSize:
-               thisOrder.manualSize == null ? (
-                 <></>
-               ) : (
-                 thisOrder.manualSize['jacket']
-               ),
-           };
+            item_name: m["item_name"],
+            item_code: "jacket " + n,
+            quantity: m["quantity"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+            measurementsObject: thisOrder.Suitmeasurements['jacket'],
+            manualSize:
+              thisOrder.manualSize == null ? (
+                <></>
+              ) : (
+                thisOrder.manualSize['jacket']
+              ),
+          };
 
-           let itemsObject2 = {
-             item_name: m["item_name"],
-             item_code: "pant " + n,
-             quantity: m["quantity"],
-             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
-             measurementsObject: thisOrder.Suitmeasurements['pant'],
-             manualSize:
-               thisOrder.manualSize == null ? (
-                 <></>
-               ) : (
-                 thisOrder.manualSize['pant']
-               ),
-           };
-           
-           singleOrderArray.push(itemsObject1);
-           
-           singleOrderArray.push(itemsObject2);
+          let itemsObject2 = {
+            item_name: m["item_name"],
+            item_code: "pant " + n,
+            quantity: m["quantity"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+            measurementsObject: thisOrder.Suitmeasurements['pant'],
+            manualSize:
+              thisOrder.manualSize == null ? (
+                <></>
+              ) : (
+                thisOrder.manualSize['pant']
+              ),
+          };
 
-       }
+          singleOrderArray.push(itemsObject1);
+
+          singleOrderArray.push(itemsObject2);
+
+        }
       } else {
         for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
           let itemsObject = {
@@ -266,7 +265,7 @@ export default function SingleOrderCustomerDetails(){
             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
             measurementsObject: thisOrder.measurements[m["item_name"]],
             manualSize:
-            thisOrder.manualSize == null ? (
+              thisOrder.manualSize == null ? (
                 <></>
               ) : (
                 thisOrder.manualSize[m["item_name"]]
@@ -288,13 +287,13 @@ export default function SingleOrderCustomerDetails(){
     const pdfString = await axiosInstance2.post('customerOrders/createPdf', {
       token: user.data.token,
       productFeaturesObject: productFeaturesObjectString,
-      orderItemsArray: orderItemsArrayPDFString, 
+      orderItemsArray: orderItemsArrayPDFString,
       singleOrderArray: singleOrderArrayString,
       draftMeasurementsObj: draftMeasurementsObjString,
       order: JSON.stringify(thisOrder),
       retailer: JSON.stringify(res1.data.data[0])
     })
-    if(pdfString.data.status === true){
+    if (pdfString.data.status === true) {
       setGeneratePDFButton(false)
       // setSnackbarOpen(true);
       // setSuccess(true);
@@ -303,49 +302,49 @@ export default function SingleOrderCustomerDetails(){
     }
   };
 
-  const handleOpenPdf = async(data) => {
+  const handleOpenPdf = async (data) => {
     // const stringPdf = data.split(".pdf")[0]
-    
+
     // const url = PicBaseUrl4 + stringPdf;
     // console.log(url)
     // window.open(url);
-      const string = data.split(".pdf")[0]
-    const res =  await axiosInstance.post('customerOrders/checkPdf', {
+    const string = data.split(".pdf")[0]
+    const res = await axiosInstance.post('customerOrders/checkPdf', {
       token: user.data.token,
       pdf: string.split("/")[1]
     })
-    if(res.data.status == true){
+    if (res.data.status == true) {
       const stringPdf = data.split(".pdf")[0]
       const url = PicBaseUrl4 + stringPdf;
       window.open(url);
-    }else{
+    } else {
       // setErrorMsg(res.data.message)
       // setSuccess(false)
       // setError(true)
     }
   }
 
-  const fetchOrder = async(id) => {
-    const res = await axiosInstance.post("/groupOrders/fetchDatag/" + id, {token: user.data.token})
+  const fetchOrder = async (id) => {
+    const res = await axiosInstance.post("/groupOrders/fetchDatag/" + id, { token: user.data.token })
     setOrder(res.data.data)
   }
 
-  const fetchOrders = async(id) => {
-    const res = await axiosInstance.post("/customerOrders/fetchGroupOrder/" + id, {token: user.data.token})
+  const fetchOrders = async (id) => {
+    const res = await axiosInstance.post("/customerOrders/fetchGroupOrder/" + id, { token: user.data.token })
     setOrders(res.data.data)
   }
 
   console.log("orders: ", orders)
-  
+
   const fetchProducts = async () => {
     const res = await axiosInstance.post("/product/fetchAll/0/0", {
       token: user.data.token,
     });
     const productObject = {}
-    for(let x of res.data.data){
+    for (let x of res.data.data) {
       const featureArray = []
-      for(let y of x.features){
-        if(y.additional == false){
+      for (let y of x.features) {
+        if (y.additional == false) {
           featureArray.push(y.name)
         }
       }
@@ -357,8 +356,8 @@ export default function SingleOrderCustomerDetails(){
   };
 
 
-  return(
-    <main className="main-panel">   
+  return (
+    <main className="main-panel">
 
       <div className="singlePageOuter">
         <div className="detailHeader">
@@ -366,59 +365,70 @@ export default function SingleOrderCustomerDetails(){
             <h3><span>Group Name:</span> {order[0] !== undefined ? order[0]['name'].toUpperCase() : ""}</h3>
             <h3><span>Retailer:</span>{order[0] !== undefined ? order[0]['retailerName'].toUpperCase() : ""}</h3>
           </div>
-          
+
           <div className="customerDetails">
 
             {orders.length > 0
-            ?
-            orders[0]['groupOrderID']['order_items'].map((item, i) => {
-              return(
-                <p key={i}> {item['quantity'] + " "}<span style={{textTransform: "capitalize"}}>{item['item_name']}</span> </p>
-              )
-            })
-            :
-            
-            <></>}
+              ?
+              orders[0]['groupOrderID']['order_items'].map((item, i) => {
+                return (
+                  <p key={i}> {item['quantity'] + " "}<span style={{ textTransform: "capitalize" }}>{item['item_name']}</span> </p>
+                )
+              })
+              :
+
+              <></>}
 
           </div>
         </div>
-          <div className="tableDataOuter">
-            <table>
-              <thead>
-                    <th><strong>S No. </strong></th>
-                    <th><strong>Order Id </strong></th>
-                    <th><strong>Customer Name </strong></th>
-                    <th><strong>Generate</strong></th>
-                    <th><strong>Print / Edit </strong></th>
-              </thead>
-              <tbody>
-                    {orders.length > 0
-                    ?
-                    orders.map((order, index) => {
-                      return(
-                        <tr key={order['_id']}>
-                          <td>{index + 1}</td>
-                          <td><span style={{textTransform: "capitalize"}}>{order.orderId}</span></td>
-                          <td><span style={{textTransform: "capitalize"}}>{order['customerName']}</span></td>
-                          <td> <span className="generatePDf" onClick={(e) => handlePrintPDF(e, index)} data-customerId = {order['_id']} style={{color: "#1C4D8F", fontWeight: "600"}}>Generate</span></td>
-                          {
-                          order['pdf']
+        <div className="tableDataOuter">
+          <table>
+            <thead>
+              <th><strong>S No. </strong></th>
+              <th><strong>Order Id </strong></th>
+              <th><strong>Customer Name </strong></th>
+              <th><strong>Generate</strong></th>
+              <th><strong>View / Edit </strong></th>
+            </thead>
+            <tbody>
+              {orders.length > 0
+                ?
+                orders.map((order, index) => {
+                  return (
+                    <tr key={order['_id']}>
+                      <td>{index + 1}</td>
+                      <td><span style={{ textTransform: "capitalize" }}>{order.orderId}</span></td>
+                      <td><span style={{ textTransform: "capitalize" }}>{order['customerName']}</span></td>
+                      <td> <span className="generatePDf" onClick={(e) => handlePrintPDF(e, index)} data-customerId={order['_id']} style={{ color: "#1C4D8F", fontWeight: "600" }}>Generate</span></td>
+                      {
+                        order['pdf']
                           ?
-                          <td> <span className="generatePDf action" onClick={() => handleOpenPdf(order['pdf'])} target="_blank" rel="noreferrer" data-customerId = {order['_id']} style={{color: "#1C4D8F", fontWeight: "600"}}>View</span></td>
+                          <td> <span className="generatePDf action" onClick={() => handleOpenPdf(order['pdf'])} target="_blank" rel="noreferrer" data-customerId={order['_id']} style={{ color: "#1C4D8F", fontWeight: "600" }}>View </span>
+                            <span className="generatePDf action">
+                              <Link
+                               to={`/retailer/editOrder/${order._id}`}
+                                style={{ color: "#1C4D8F", fontWeight: "600" }}
+                                className="generatePDf action"
+                              >
+                                | Edit
+                              </Link>
+                            </span>
+
+                          </td>
                           :
-                          <td> <span target="_blank" rel="noreferrer" className="action" data-customerId = {order['_id']} style={{color: "#1C4D8F", fontWeight: "600"}}>N/A</span></td>
-                          }                          
-                        </tr>
-                      )
-                    })
-                    :
-                    <></>}
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <Link to="/retailer/viewGroupOrder" className="custom-btn">Close</Link>
-          </div>
+                          <td> <span target="_blank" rel="noreferrer" className="action" data-customerId={order['_id']} style={{ color: "#1C4D8F", fontWeight: "600" }}>N/A</span></td>
+                      }
+                    </tr>
+                  )
+                })
+                :
+                <></>}
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <Link to="/retailer/viewGroupOrder" className="custom-btn">Close</Link>
+        </div>
 
         <Dialog
           open={generatePDFButton}
@@ -430,10 +440,10 @@ export default function SingleOrderCustomerDetails(){
           </DialogTitle>
           <DialogContent>
             <div>
-              <CircularProgress/>
+              <CircularProgress />
             </div>
           </DialogContent>
-        </Dialog> 
+        </Dialog>
       </div>
     </main>
   )

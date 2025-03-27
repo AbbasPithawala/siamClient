@@ -44,6 +44,8 @@ export default function InvoiceHistory() {
   const [index, setIndex] = useState(0);
   const [errorMsg, setErrorMsg] = useState("")
   const [error, setError] = useState(false)
+  const [successMsg, setSuccessMsg] = useState("")
+  const [success, setSuccess] = useState(false)
   const [open, setOpen] = useState(false)
   const [openOrderInvoiceTable, setOpenOrderInvoiceTable] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
@@ -92,6 +94,8 @@ export default function InvoiceHistory() {
     }
     setIsLoading(false);
   };
+
+  console.log("dfsjdnfd: ", retailer)
 
   const handleCloseOrderInvoiceTable = () => {
     setOpenOrderInvoiceTable(false)
@@ -160,7 +164,6 @@ export default function InvoiceHistory() {
     }
 
   };
-
   const handleResetAll = () => {
     fetchInvoices(page, limit, retailer_code);
     setStartDate("")
@@ -339,19 +342,266 @@ export default function InvoiceHistory() {
     let elementAsString = renderToString(htmlElement);
     let doc = new jsPDF('p', 'px', [794, 1123]);
     doc.html(elementAsString, {
-      callback: function (doc) {
+      callback: async function (doc) {
+        // const pdfBlob = doc.output("blob"); // Blob format
+        // const pdfBase64 = doc.output("datauristring"); // Base64 format
+    
+        // // Create form data to send the Blob or base64 to backend
+        // const formData = new FormData();
+        // formData.append("file", new File([pdfBlob], "invoice.pdf", { type: "application/pdf" }));
+    
+        // try {
+        //   await fetch("http://localhost:4545/retailerInvoice/send-email", {
+        //     method: "POST",
+        //     body: formData,
+        // });
+        //     alert("Email Sent Successfully!");
+        // } catch (error) {
+        //     console.error("Error sending email:", error);
+        // }
         window.open(doc.output('bloburl'), '_blank');
       },
       x: 10,
       y: 10,
     });
+        // Generate PDF as Blob or base64 (choose one method)
+        // const pdfBlob = doc.output("blob"); // Blob format
+        // const pdfBase64 = doc.output("datauristring"); // Base64 format
+    
+        // // Create form data to send the Blob or base64 to backend
+        // const formData = new FormData();
+        // formData.append("file", new File([pdfBlob], "invoice.pdf", { type: "application/pdf" }));
+    
+        // try {
+        //   await fetch("http://localhost:4545/retailerInvoice/send-email", {
+        //     method: "POST",
+        //     body: formData,
+        // });
+        //     alert("Email Sent Successfully!");
+        // } catch (error) {
+        //     console.error("Error sending email:", error);
+        // }
+  }
+
+  const handleSendMail = async (id) => {
+    const res = await axiosInstance.post("/retailerInvoice/fetch/" + id, { token: user.data.token })
+    let orders = res.data.data[0].orders
+    let currentInvoice = invoices.filter((inv) => {
+      return id == inv._id
+    })
+
+    let htmlElement = (
+      <>
+        <div style={{ textAlign: 'center', margin: '25px', fontFamily: "Roboto" }}>
+          <table style={{ width: '725px' }} cellSpacing={0} cellPadding={2} border={0}>
+            <tbody>
+              <tr>
+                <td colSpan={3} align="left" style={{ borderBottom: '1px solid #ccc' }} valign="middle">
+                  <img src={Logo} alt="logo" height="60px" />
+                </td>
+                <td colSpan={2} align="right" style={{ borderBottom: '1px solid #ccc' }}>
+                  <p style={{ lineHeight: '15px', color: '#666', textAlign: 'right' }}>
+                    <font style={{ fontSize: '10px', textAlign: 'right' }}>1022/87 Charoen Nakorn 34/2<br />Banglampu-Lang, Bangkok<br />10600 Thailand.</font>
+                  </p>
+                </td>
+              </tr>
+              <tr style={{ backgroundColor: "white" }}>
+                <td colSpan={5} style={{ textAlign: 'center' }}>
+                  <font style={{ fontSize: '15px', color: '#26377D', fontWeight: 'bold' }}>{"Invoice: " + currentInvoice[0]['invoice_number']}</font>
+                </td>
+              </tr>
+              <tr style={{ backgroundColor: "white" }}>
+                <td colSpan={3} style={{ textAlign: 'left' }}>
+                  <div style={{display: "flex", flexDirection:"column"}}>
+                  <div style={{display: "flex", flexDirection:"row", marginBottom:"10px"}}><font style={{ fontSize: '12px', color: '#333', fontWeight: 700 }}>Sold To :</font>
+                  <font style={{ fontSize: '12px', color: '#333' }}><span style={{ paddingLeft: "10px" }}>{orders[0]['retailerName']}</span></font>
+                  </div>
+                  <div style={{display: "flex", flexDirection:"row", marginBottom:"10px"}}><font style={{ fontSize: '12px', color: '#333', fontWeight: 700 }}>Retailer Address :</font>
+                  <font style={{ fontSize: '12px', color: '#333' }}><span style={{ paddingLeft: "10px" }}>{retailer['address'] ? retailer['address'] : "N/A"}</span></font>
+                  </div>
+                  <div style={{display: "flex", flexDirection:"row", marginBottom:"10px"}}><font style={{ fontSize: '12px', color: '#333', fontWeight: 700 }}>Retailer Email :</font>
+                  <font style={{ fontSize: '12px', color: '#333' }}><span style={{ paddingLeft: "10px" }}>{retailer['email'] ? retailer['email'] : "N/A"}</span></font>
+                  </div>
+                  </div>
+                </td>
+                <td colSpan={2} style={{ textAlign: 'right' }}>
+                  <font style={{ fontSize: '12px', color: '#333', fontWeight: 700 }}>Date :</font>
+                  <font style={{ fontSize: '12px', color: '#333' }}><span style={{ paddingLeft: "10px" }}>{res.data.data[0].dueDate}</span></font>
+                </td>
+              </tr>
+              <tr style={{ backgroundColor: '#26377D', padding: '10px 20px' }}>
+                <th colSpan={1} style={{ color: '#fff', lineHeight: '15px' }}>
+                  <font style={{ fontSize: '12px' }}><strong>ORDER NO</strong></font>
+                </th>
+                <th colSpan={1} style={{ color: '#fff', lineHeight: '15px' }}>
+                  <font style={{ fontSize: '12px' }}><strong>CUSTOMER</strong></font>
+                </th>
+                <th colSpan={2} style={{ color: '#fff', lineHeight: '15px' }}>
+                  <font style={{ fontSize: '12px' }}><strong>PRODUCTS</strong></font>
+                </th>
+                <th colSpan={1} style={{ textAlign: 'right', color: '#fff', lineHeight: '15px' }}>
+                  <font style={{ fontSize: '12px' }}><strong>AMOUNT</strong></font>
+                </th>
+              </tr>
+              {orders.map((order, i) => {
+                return (
+                  <>
+                    <tr key={i} style={{ backgroundColor: '#f4f4f4' }}>
+                      <td colSpan={1} style={{ color: '#444', borderBottom: '1px solid #d4d4d4' }}>
+                        <font style={{ fontSize: '14px' }}>{order.orderId}</font>
+                      </td>
+                      <td colSpan={1} style={{ color: '#444', borderBottom: '1px solid #d4d4d4' }}>
+                        <font style={{ fontSize: '14px', textTransform:"capitalize" }}>{order.customerName}</font>
+                      </td>
+                      <td colSpan={2} style={{ color: '#444', borderBottom: '1px solid #d4d4d4' }}>
+                        <font style={{ fontSize: '14px' }}>
+                          {order.order_items.map((product, i) => (i > 0 ? `+ ${product.quantity} ${product.item_name.charAt(0).toUpperCase() +
+                            product.item_name.slice(1)}` : `${product.quantity} ${product.item_name.charAt(0).toUpperCase() +
+                            product.item_name.slice(1)}`))}
+                        </font>
+                      </td>
+                      <td colSpan={1} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                        <font style={{ fontSize: '14px' }}>{order.invoice.total_amount}</font>
+                      </td>
+                    </tr>
+                    {/* <tr colSpan={0.5} style={{fontSize: "5px", border:"solid 1px #d4d4d4"}}>
+                    <tr key={i} style={{ backgroundColor: '#f4f4f4' }}>
+                          <td style={{ color: '#444', borderBottom: '1px solid #d4d4d4', fontSize:"12px"}} >Item</td>
+                          <td style={{ color: '#444', borderBottom: '1px solid #d4d4d4', fontSize:"12px"}}>Fabric</td>
+                          <td style={{ color: '#444', borderBottom: '1px solid #d4d4d4', fontSize:"12px"}}>Cost</td>
+                        </tr>
+                    {order['invoice']['items'].map((item) => {
+                      return(
+                       <tr key={item['_id']} style={{ backgroundColor: '#f4f4f4' }}>
+                        <td style={{ color: '#444', borderBottom: '1px solid #d4d4d4',fontSize: "10px" }} >{item['item_code']}</td>
+                        <td style={{ color: '#444', borderBottom: '1px solid #d4d4d4',fontSize: "10px" }} >{item['fabric']}</td>
+                        <td style={{ color: '#444', borderBottom: '1px solid #d4d4d4',fontSize: "10px" }} >{item['price']}</td>
+                        
+                       </tr>
+                      )
+                    })}
+                    </tr> */}
+                  </>
+                )
+              })}
+              <tr style={{ backgroundColor: '#f4f4f4' }}>
+                <td colSpan={4} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', fontWeight: 'bold' }}>Subtotal</font>
+                </td>
+                <td colSpan={1} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', fontWeight: 'bold' }}>{res.data.data[0].total_price}</font>
+                </td>
+              </tr>
+              <tr style={{ backgroundColor: '#f4f4f4' }}>
+                <td colSpan={4} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', fontWeight: 'bold' }}>Shipping Cost</font>
+                </td>
+                <td colSpan={1} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', fontWeight: 'bold' }}>{res.data.data[0].shipping_charge}</font>
+                </td>
+              </tr>
+              <tr style={{ backgroundColor: '#f4f4f4' }}>
+                <td colSpan={4} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', textAlign: 'right', fontWeight: 'bold' }}>Discount</font>
+                </td>
+                <td colSpan={1} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', textAlign: 'right', fontWeight: 'bold' }}>{res.data.data[0].discount}</font>
+                </td>
+              </tr>
+              {/* <tr style={{ backgroundColor: '#f4f4f4' }}>
+                <td colSpan={4} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', textAlign: 'right', fontWeight: 'bold' }}>Balance</font>
+                </td>
+                <td colSpan={1} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', textAlign: 'right', fontWeight: 'bold' }}>10400.00</font>
+                </td>
+              </tr> */}
+              <tr style={{ backgroundColor: '#D3D3D3' }}>
+                <td colSpan={4} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', textAlign: 'right', fontWeight: 'bold' }}>Total Amount</font>
+                </td>
+                <td colSpan={1} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', textAlign: 'right', fontWeight: 'bold' }}>{res.data.data[0].total_amount}</font>
+                </td>
+              </tr>
+              {/* <tr style={{ backgroundColor: '#f4f4f4' }}>
+                <td colSpan={4} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', textAlign: 'right', fontWeight: 'bold' }}>Due Date</font>
+                </td>
+                <td colSpan={1} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', textAlign: 'right', fontWeight: 'bold' }}>{res.data.data[0].dueDate}</font>
+                </td>
+              </tr>
+              <tr style={{ backgroundColor: '#f4f4f4' }}>
+                <td colSpan={4} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', textAlign: 'right', fontWeight: 'bold' }}>Balance due on 02/Aug/2018</font>
+                </td>
+                <td colSpan={1} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
+                  <font style={{ fontSize: '15px', textAlign: 'right', fontWeight: 'bold' }}>0.00</font>
+                </td>
+              </tr> */}
+              <tr style={{ backgroundColor: 'white' }}>
+                <td colSpan={5} style={{ textAlign: 'center' }}>
+                  <font style={{ color: '#26377D', fontSize: '15px', fontWeight: '600' }}>Thank You For Shopping At Siam Suits Supply</font>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </>
+    )
+    let elementAsString = renderToString(htmlElement);
+    let doc = new jsPDF('p', 'px', [794, 1123]);
+    doc.html(elementAsString, {
+      callback: async function (doc) {
+        const pdfBlob = doc.output("blob"); // Blob format
+        const pdfBase64 = doc.output("datauristring"); // Base64 format
+    
+        // Create form data to send the Blob or base64 to backend
+        const formData = new FormData();
+        formData.append("file", new File([pdfBlob], "invoice.pdf", { type: "application/pdf" }));
+        formData.append("email", retailer['email']); // Add email to the form data
+    
+        try {
+        const response = await axiosInstance.post("/retailerInvoice/send-email", formData, {
+          headers: {
+              "Content-Type": "multipart/form-data",
+          },
+      });
+            // alert("Email Sent Successfully!");
+            setSuccess(true)
+            setSuccessMsg("Email Sent Successfully!")
+            setError(false)
+        } catch (error) {
+            console.error("Error sending email:", error);
+        }
+      },
+      x: 10,
+      y: 10,
+    });
+        // Generate PDF as Blob or base64 (choose one method)
+        // const pdfBlob = doc.output("blob"); // Blob format
+        // const pdfBase64 = doc.output("datauristring"); // Base64 format
+    
+        // // Create form data to send the Blob or base64 to backend
+        // const formData = new FormData();
+        // formData.append("file", new File([pdfBlob], "invoice.pdf", { type: "application/pdf" }));
+    
+        // try {
+        //   await fetch("http://localhost:4545/retailerInvoice/send-email", {
+        //     method: "POST",
+        //     body: formData,
+        // });
+        //     alert("Email Sent Successfully!");
+        // } catch (error) {
+        //     console.error("Error sending email:", error);
+        // }
   }
 
   const exportSingleInvoicePDF = async (id) => {
     const res = await axiosInstance.post("/customerOrders/fetchOrderByID/" + id, { token: user.data.token })
 
     let invoice = res.data.data[0].invoice
-    console.log("invoice : ", invoice)
     let htmlElement = (
        <>
           <div style={{ textAlign: 'center', margin: '25px' }}>
@@ -482,6 +732,7 @@ export default function InvoiceHistory() {
     }
     setOpen(false)
     setError(false)
+    setSuccess(false)
   }
   
   const action = (
@@ -599,7 +850,7 @@ export default function InvoiceHistory() {
                           <td>{invoice.dueDate}</td>
                           <td><Button onClick={() => handleViewInvoiceModal(invoice['_id'])} className="Eyebtn"><RemoveRedEyeIcon /></Button></td>
                           {/* exportPDF(invoice._id) */}
-                          <td><Button className="Eyebtn"><SendIcon /></Button></td>
+                          <td><Button className="Eyebtn"onClick={() => handleSendMail(invoice['_id'])}><SendIcon /></Button></td>
                         </tr>
                       ))}
                     </tbody>
@@ -631,7 +882,22 @@ export default function InvoiceHistory() {
           </Alert>
         </Snackbar>
       )}
-
+   {success && (
+        <Snackbar
+          open={success}
+          autoHideDuration={2000}
+          onClose={handleClose}
+          action={action}
+        >
+          <Alert
+            onClose={handleClose}
+            severity="success"
+            sx={{ width: "100%" }}
+          >
+            {successMsg}
+          </Alert>
+        </Snackbar>
+      )}
 
         {/* dialogues ==================== */}
     <div>

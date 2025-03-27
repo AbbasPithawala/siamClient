@@ -609,7 +609,8 @@ const fetchProducts = async () => {
   setProducts(res.data.data);
 };
 
-console.log(count, page)
+
+console.log("orders: ",  orders)
 
 const fetchAllOrders = async (par) => {
 
