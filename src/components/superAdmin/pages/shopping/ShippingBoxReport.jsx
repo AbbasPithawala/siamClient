@@ -239,13 +239,13 @@ export default function ShippingBoxReport() {
                       const itemName = x.split("/")[1].split("_")[0]
                       if (Object.keys(itemArray).length > 0) {
                         if (!Object.keys(itemArray).includes(itemName)) {
-                          if(itemName == 'suit'){
+                          if(itemName == 'suit' || itemName == 'tuxedo'){
                             itemArray[itemName] = 0.5
                           }else{                            
                             itemArray[itemName] = 1
                           }
                         } else {
-                          if(itemName == 'suit'){                            
+                          if(itemName == 'suit' || itemName == 'tuxedo'){                            
                           itemArray[itemName] = itemArray[itemName] +  0.5
                           }else{                   
                             itemArray[itemName] = itemArray[itemName] + 1
@@ -253,7 +253,7 @@ export default function ShippingBoxReport() {
                         }
                       } else {
                         // itemArray[itemName] = 1
-                        if(itemName == 'suit'){                            
+                        if(itemName == 'suit' || itemName == 'tuxedo'){                            
                           itemArray[itemName] = 0.5
                           }else{                   
                             itemArray[itemName] = 1
@@ -377,14 +377,14 @@ export default function ShippingBoxReport() {
                     if(x.split("/")[0] == orders['orderId']){
                       // console.log("item string: ", x.split("/")[1].split("_")[0])
                       if(itemArray.includes(x.split("/")[1].split("_")[0])){
-                        if(x.split("/")[1].split("_")[0] == 'suit'){
+                        if(x.split("/")[1].split("_")[0] == 'suit' || x.split("/")[1].split("_")[0] == 'tuxedo'){
                           orderItemObject[x.split("/")[1].split("_")[0]] = orderItemObject[x.split("/")[1].split("_")[0]] + 0.5
                         }else{
                           orderItemObject[x.split("/")[1].split("_")[0]] = orderItemObject[x.split("/")[1].split("_")[0]] + 1 
                         }
                       }
                       else{
-                        if(x.split("/")[1].split("_")[0] == 'suit'){
+                        if(x.split("/")[1].split("_")[0] == 'suit' || x.split("/")[1].split("_")[0] == 'tuxedo'){
                           orderItemObject[x.split("/")[1].split("_")[0]] = 0.5
                           itemArray.push(x.split("/")[1].split("_")[0])
                         }else{

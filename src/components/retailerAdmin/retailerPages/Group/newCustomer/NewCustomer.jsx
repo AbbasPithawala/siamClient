@@ -40,6 +40,7 @@ const NewCustomer = (
     setOpenCustomerForm,
     productsMeasurementArray,
     suitProductsMeasurementArray,
+    tuxedoProductsMeasurementArray,
     orders,
     customerID, setCustomerID,
     customerArray, setCustomerArray,
@@ -80,6 +81,7 @@ const NewCustomer = (
   //================================================================
 
   const [suitcustomerMeasurements, setSuitCustomerMeasurements] = useState({});
+  const [tuxedocustomerMeasurements, setTuxedoCustomerMeasurements] = useState({});
   const [customerMeasurements, setCustomerMeasurements] = useState({});
   // const [allCustomers, setAllCustomers] = useState([])
   const [filledMeasurements, setFilledMeasurements] = useState([]);
@@ -87,6 +89,7 @@ const NewCustomer = (
   const [product_name, setProduct_name] = useState("");
   const [existingCustomer, setExistingCustomer] = useState(false)
   const [suitFilledMeasurements, setSuitFilledMeasurement] = useState([]);
+  const [tuxedoFilledMeasurements, setTuxedoFilledMeasurement] = useState([]);
   const [draftMeasurementsObject, setDraftMeasurementsObject] = useState({})
   const [customerList, setCustomerList] = useState([])
 
@@ -194,6 +197,21 @@ const NewCustomer = (
           const tempSuitProductMeasurements = JSON.parse(JSON.stringify(suitProductsMeasurementArray))
           setSuitCustomerMeasurements(tempSuitProductMeasurements)
         }
+
+        if (
+          res.data.data[0]["tuxedo"] !== undefined &&
+          res.data.data[0]["tuxedo"] !== null
+        ) {
+          if (Object.keys(res.data.data[0]["tuxedo"]).length > 0) {
+            setTuxedoCustomerMeasurements(res.data.data[0]["tuxedo"]);
+            setTuxedoFilledMeasurement("tuxedo");
+            measurementsFinished['tuxedo'] = true
+            setMeasurementsFinished({ ...measurementsFinished })
+          }
+        } else {
+          const tempTuxedoProductMeasurements = JSON.parse(JSON.stringify(tuxedoProductsMeasurementArray))
+          setTuxedoCustomerMeasurements(tempTuxedoProductMeasurements)
+        }
       };
 
       fetchUserMeasurements();
@@ -209,6 +227,10 @@ const NewCustomer = (
       if (Object.keys(suitProductsMeasurementArray).length > 0) {
         const tempSuitProductMeasurements = JSON.parse(JSON.stringify(suitProductsMeasurementArray))
         setSuitCustomerMeasurements(tempSuitProductMeasurements)
+      }
+      if (Object.keys(tuxedoProductsMeasurementArray).length > 0) {
+        const tempTuxedoProductMeasurements = JSON.parse(JSON.stringify(tuxedoProductsMeasurementArray))
+        setTuxedoCustomerMeasurements(tempTuxedoProductMeasurements)
       }
     }
   }, [customerID])
@@ -251,7 +273,7 @@ const NewCustomer = (
     //   setAllCustomers([])
     // }
   }
-
+  // console.log("new customer: ", customer)
   const handleNext = async () => {
 
     if (!Object.values(measurementsFinished).includes(false)) {
@@ -305,7 +327,7 @@ const NewCustomer = (
       setErrorMsg("Please fill all the neccessary information !");
     }
   };
-
+  console.log("customr: ", customer)
   const handleUpdateNext = async () => {
     if (!Object.values(measurementsFinished).includes(false)) {
 
@@ -378,6 +400,11 @@ const NewCustomer = (
 
   const handleOpenSuitMeasurementForm = (e) => {
     setProduct_name('suit')
+    setOpenMeasurementForm(true)
+  };
+
+  const handleOpenTuxedoMeasurementForm = (e) => {
+    setProduct_name('tuxedo')
     setOpenMeasurementForm(true)
   };
 
@@ -559,7 +586,10 @@ const NewCustomer = (
                             data-name={products.item_name}
                             onClick={
                               products.item_name === "suit"
-                                ? handleOpenSuitMeasurementForm
+                                ? handleOpenSuitMeasurementForm 
+                                :
+                                products.item_name === "tuxedo"
+                                ? handleOpenTuxedoMeasurementForm
                                 : handleOpenMeasurementForm
                             }
                             style={measurementsFinished[products.item_name] == true
@@ -654,6 +684,8 @@ const NewCustomer = (
             setCustomerMeasurements={setCustomerMeasurements}
             suitcustomerMeasurements={suitcustomerMeasurements}
             setSuitCustomerMeasurements={setSuitCustomerMeasurements}
+            tuxedocustomerMeasurements={tuxedocustomerMeasurements}
+            setTuxedoCustomerMeasurements={setTuxedoCustomerMeasurements}
             product_name={product_name}
             setProduct_name={setProduct_name}
             customer={customer}

@@ -89,6 +89,7 @@ export default function NewOrder() {
   const [openCustomerForm, setOpenCustomerForm] = useState(false)
   const [productsMeasurementArray, setProductsMeasurementArray] = useState({})
   const [suitProductsMeasurementArray, setSuitProductsMeasurementArray] = useState({})
+  const [tuxedoProductsMeasurementArray, setTuxedoProductsMeasurementArray] = useState({})
   const [showAddCustomerButton, setshowCustomerAddButton] = useState(false);
   const [customerArray, setCustomerArray] = useState([]);
   const [groupOrderCustomers, setGroupOrderCustomers] = useState([])
@@ -97,7 +98,7 @@ export default function NewOrder() {
 
   // ==================================================
   // ==================================================
-  const excludeProduct = ["jacket(suit)", "pant(suit)"];
+  const excludeProduct = ["jacket(suit)", "pant(suit)", "tuxedojacket(tuxedo)", "pant(tuxedo)"];
   useEffect(() => {
     const fetchProducts = async () => {
       const res = await axiosInstance.post("/product/fetchAll/0/0", {
@@ -123,6 +124,12 @@ export default function NewOrder() {
             if (!Object.keys(suitProductsMeasurementArray).includes(x['name'])) {
               suitProductsMeasurementArray[x['name']] = { measurements: obj }
               setSuitProductsMeasurementArray({ ...suitProductsMeasurementArray })
+            }
+          }
+          if (x['name'] == 'tuxedojacket' || x['name'] == 'pant') {
+            if (!Object.keys(tuxedoProductsMeasurementArray).includes(x['name'])) {
+              tuxedoProductsMeasurementArray[x['name']] = { measurements: obj }
+              setTuxedoProductsMeasurementArray({ ...tuxedoProductsMeasurementArray })
             }
           }
           productsMeasurementArray[x['name']] = { measurements: obj }
@@ -240,6 +247,43 @@ export default function NewOrder() {
 
       setOrders([...orders]);
 
+    } else if (e.target.value === "tuxedo") {
+
+      productsNameArray.push("tuxedo");
+
+      let array = ["tuxedojacket", "pant"];
+
+      for (let pro of array) {
+        let res1 = await axiosInstance.post(
+          "/product/fetchForMeasurementsForSuit/" + pro,
+          {
+            token: user.data.token,
+          }
+        );
+        const obj = {};
+
+        for (let x of res1.data.data[0].measurements) {
+          obj[x.name] = {
+            value: 0,
+            adjustment_value: 0,
+            total_value: 0,
+            thai_name: x.thai_name
+          };
+        }
+
+        tuxedoProductsMeasurementArray[pro] = { measurements: obj }
+        setTuxedoProductsMeasurementArray({ ...tuxedoProductsMeasurementArray })
+      }
+
+      const orderArray = {
+        item_name: "tuxedo",
+        quantity: 1,
+      };
+
+      orders.push(orderArray);
+
+      setOrders([...orders]);
+
     } else {
       const res = await axiosInstance.post(
         "/product/fetchForMeasurements/" + e.target.value,
@@ -322,6 +366,9 @@ export default function NewOrder() {
 
     if (e.target.dataset.name == 'suit') {
       setSuitProductsMeasurementArray({})
+    }
+    if (e.target.dataset.name == 'tuxedo') {
+      setTuxedoProductsMeasurementArray({})
     }
 
 
@@ -534,7 +581,6 @@ export default function NewOrder() {
     setOpen(false);
     setError(false);
   };
-
   const handlePlaceGroupOrder = async () => {
     const validation = newCustomerArray.every(
       (item) => item.firstname && item.lastname && item.gender
@@ -764,6 +810,9 @@ export default function NewOrder() {
 
                           {productsNameArray.includes("suit") ? "" : <option value={"suit"}>
                             Suit
+                          </option>}
+                          {productsNameArray.includes("tuxedo") ? "" : <option value={"tuxedo"}>
+                            Tuxedo
                           </option>}
                           {products.map((product, i) => {
                             if (!productsNameArray.includes(product.name)) {
@@ -1088,6 +1137,7 @@ export default function NewOrder() {
                 setOpenCustomerForm={setOpenCustomerForm}
                 productsMeasurementArray={productsMeasurementArray}
                 suitProductsMeasurementArray={suitProductsMeasurementArray}
+                tuxedoProductsMeasurementArray={tuxedoProductsMeasurementArray}
                 orders={orders}
                 customerID={customerID}
                 setCustomerID={setCustomerID}

@@ -38,6 +38,7 @@ import * as htmlToImage from "html-to-image";
 
 import Draggable from "react-draggable";
 import { v4 as uuidv4 } from "uuid";
+import TuxedoMeasurements from "../../../Measurements/TuxedoMeasurements";
 var randomColor = require("randomcolor");
 
 
@@ -93,6 +94,7 @@ export default function EditOrderWithManualSize() {
   const [productsNameArray, setProductsNameArray] = useState([]);
   const [open, setOpen] = useState(false);
   const [suitOpen, setSuitOpen] = useState(false);
+  const [tuxedoOpen, setTuxedoOpen] = useState(false);
   const [customer, setCustomer] = useState({});
   const [orders, setOrders] = useState([]);
   const [totalQuantity, setTotalQuantity] = useState(0);
@@ -129,9 +131,12 @@ export default function EditOrderWithManualSize() {
   const [productFeaturesObject, setProductFeaturesObject] = useState({})
 
   //Suit State
+  const [tuxedocustomerMeasurements, setTuxedoCustomerMeasurements] = useState({});
   const [suitcustomerMeasurements, setSuitCustomerMeasurements] = useState({});
   const [suitFilledMeasurements, setSuitFilledMeasurement] = useState([]);
+  const [tuxedoFilledMeasurements, setTuxedoFilledMeasurement] = useState([]);
   const [newMeasurement, setNew] = useState([]);
+  const [newTuxedoMeasurement, setNewTuxedoMeasurement] = useState([]);
   const [isActive3, setIsActive3] = useState(false);
  
 
@@ -147,6 +152,7 @@ export default function EditOrderWithManualSize() {
   const [productId, setProductId] = useState("");
   const [open7, setOpen7] = useState(false);
   const [suitProducts, setSuitProducts] = useState([])
+  const [tuxedoProducts, setTuxedoProducts] = useState([])
   const [measurementsFinished, setMeasurementsFinished] = useState({})
 
   // for Tabs
@@ -219,7 +225,7 @@ export default function EditOrderWithManualSize() {
       } else {
         console.log("null")
       }
-
+      console.log("ert: ", res.data.data[0]['tuxedo'])
       if (
         res.data.data[0]["suit"] !== undefined &&
         res.data.data[0]["suit"] !== null
@@ -227,6 +233,19 @@ export default function EditOrderWithManualSize() {
         if (Object.keys(res.data.data[0]["suit"]).length > 0) {
           setSuitCustomerMeasurements(res.data.data[0]["suit"]);
           setSuitFilledMeasurement("suit");
+        }
+      } else {
+        console.log("null")
+      }
+
+      if(
+        res.data.data[0]["tuxedo"] !== undefined &&
+        res.data.data[0]["tuxedo"] !== null
+      ){
+        console.log("her hre hre")
+        if (Object.keys(res.data.data[0]["tuxedo"]).length > 0) {
+          setTuxedoCustomerMeasurements(res.data.data[0]["tuxedo"]);
+          setTuxedoFilledMeasurement("tuxedo");
         }
       } else {
         console.log("null")
@@ -300,6 +319,12 @@ export default function EditOrderWithManualSize() {
               suitObj[x] = {};
             }
             object[items["item_name"]] = suitObj
+          }else if(items["item_name"] == "tuxedo"){
+            let tuxedoObj ={}
+            for (let x of Object.keys(res.data.data[0]["tuxedo"])){
+              tuxedoObj[x] = {};
+            }
+            object[items["item_name"]] = tuxedoObj
           }else{
             object[items["item_name"]] = {};
           } 
@@ -467,6 +492,37 @@ export default function EditOrderWithManualSize() {
           );
         }
       }
+    }else if (customer['tuxedo']) {
+
+      for(let x of Object.keys(customer['tuxedo'])) {
+        if(x == e.target.dataset.name) {
+          if(customer['tuxedo'][e.target.dataset.name]?.["fitting_type"]){
+            customerMeasurements[e.target.dataset.name]["fitting_type"] = customer['tuxedo'][e.target.dataset.name]['fitting_type']
+            setCustomerMeasurements({ ...customerMeasurements });
+          }
+          if(customer['tuxedo'][e.target.dataset.name]?.['measurements']){
+            customerMeasurements[e.target.dataset.name]["measurements"] = customer['tuxedo'][e.target.dataset.name]['measurements']
+            setProductMeasurements(customer['tuxedo'][e.target.dataset.name]['measurements'])
+            setCustomerMeasurements({ ...customerMeasurements });
+          }
+          if(customer['tuxedo'][e.target.dataset.name]?.["pant_type"]){
+            customerMeasurements[e.target.dataset.name]["pant_type"] = customer['tuxedo'][e.target.dataset.name]['pant_type']
+            setCustomerMeasurements({ ...customerMeasurements });
+          }
+          if(customer['tuxedo'][e.target.dataset.name]?.["shoulder_type"]){
+              customerMeasurements[e.target.dataset.name]["shoulder_type"] = customer['tuxedo'][e.target.dataset.name]['shoulder_type']
+              setCustomerMeasurements({ ...customerMeasurements });
+          }
+          if(customer['tuxedo'][e.target.dataset.name]?.["notes"]){
+            customerMeasurements[e.target.dataset.name]["notes"] = customer['tuxedo'][e.target.dataset.name]['notes']
+            setCustomerMeasurements({ ...customerMeasurements });
+          }
+        }else {
+          setProductMeasurements(
+            customerMeasurements[e.target.dataset.name]["measurements"]
+          );
+        }
+      }
     }else{
       setProductMeasurements(
         customerMeasurements[e.target.dataset.name]["measurements"]
@@ -525,6 +581,10 @@ export default function EditOrderWithManualSize() {
 
   const handleCloseSuit = async (e) => {
     setSuitOpen(false);
+  };
+
+  const handleCloseTuxedo = async (e) => {
+    setTuxedoOpen(false);
   };
 
   const handleCustomFitValue = async (e) => {
@@ -618,6 +678,18 @@ export default function EditOrderWithManualSize() {
         obj[product_name] = customerMeasurements[product_name]
         customer['suit'] = obj
       }
+      if(product_name == 'pant'){
+        tuxedocustomerMeasurements[product_name] = customerMeasurements[product_name]
+        setTuxedoCustomerMeasurements({...tuxedocustomerMeasurements})
+        if(customer['tuxedo']){
+          customer['tuxedo'][product_name] = customerMeasurements[product_name]
+          setCustomer({...customer})
+        }else{
+          const obj = {}
+          obj[product_name] = customerMeasurements[product_name]
+          customer['tuxedo'] = obj
+        }
+      }
     }
 
     setIsActive(false);
@@ -638,6 +710,10 @@ export default function EditOrderWithManualSize() {
     
     if(Object.keys(res.data.data["measurementsObject"]).includes('jacket') && Object.keys(res.data.data["measurementsObject"]).includes('pant')){
       measurementsFinished['suit'] = true
+      setMeasurementsFinished({...measurementsFinished})
+    }
+    if(Object.keys(res.data.data["measurementsObject"]).includes('tuxedojacket') && Object.keys(res.data.data["measurementsObject"]).includes('pant')){
+      measurementsFinished['tuxedo'] = true
       setMeasurementsFinished({...measurementsFinished})
     }
     measurementsFinished[product_name] = true
@@ -847,6 +923,23 @@ export default function EditOrderWithManualSize() {
           orderItemsArray.push(itemsObject1);          
           orderItemsArray.push(itemsObject2);
         }
+      } else if (m.item_name == "tuxedo") {
+        for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
+          let itemsObject1 = {
+            item_name: m["item_name"],
+            item_code: "tuxedojacket " + n,
+            quantity: m["quantity"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+          let itemsObject2 = {
+            item_name: m["item_name"],
+            item_code: "pant " + n,
+            quantity: m["quantity"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+          orderItemsArray.push(itemsObject1);          
+          orderItemsArray.push(itemsObject2);
+        }
       } else {
         for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
           let itemsObject = {
@@ -868,6 +961,44 @@ export default function EditOrderWithManualSize() {
           let itemsObject1 = {
             item_name: m["item_name"],
             item_code: "jacket " + n,
+            quantity: m["quantity"],
+            repeatOrder: res.data.data[0]["repeatOrder"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+
+          if (j % 5 == 0 || orderItemsArray.length == j) {
+            justAnArray.push(itemsObject1);
+            orderItemsArrayPDF.push(justAnArray);
+            justAnArray = [];
+          } else {
+            justAnArray.push(itemsObject1);
+          }
+
+          j = j + 1;
+
+          let itemsObject2 = {
+            item_name: m["item_name"],
+            item_code:  "pant " + n,
+            quantity: m["quantity"],
+            repeatOrder: res.data.data[0]["repeatOrder"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+
+          if (j % 5 == 0 || orderItemsArray.length == j) {
+            justAnArray.push(itemsObject2);
+            orderItemsArrayPDF.push(justAnArray);
+            justAnArray = [];
+          } else {
+            justAnArray.push(itemsObject2);
+          }
+
+          j = j + 1;
+        }
+      } else if (m.item_name == "tuxedo") {
+        for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
+          let itemsObject1 = {
+            item_name: m["item_name"],
+            item_code: "tuxedojacket " + n,
             quantity: m["quantity"],
             repeatOrder: res.data.data[0]["repeatOrder"],
             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
@@ -962,6 +1093,42 @@ export default function EditOrderWithManualSize() {
            singleOrderArray.push(itemsObject2);
 
        }
+      } else if (m.item_name == "tuxedo") {
+        for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
+
+          let itemsObject1 = {
+             item_name: m["item_name"], 
+             item_code: "tuxedojacket " + n,
+             quantity: m["quantity"],
+             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+             measurementsObject: res.data.data[0].Tuxedomeasurements['tuxedojacket'],
+             manualSize:
+               res.data.data[0].manualSize == null ? (
+                 <></>
+               ) : (
+                 res.data.data[0].manualSize['tuxedojacket']
+               ),
+           };
+
+           let itemsObject2 = {
+             item_name: m["item_name"],
+             item_code: "pant " + n,
+             quantity: m["quantity"],
+             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+             measurementsObject: res.data.data[0].Tuxedomeasurements['pant'],
+             manualSize:
+               res.data.data[0].manualSize == null ? (
+                 <></>
+               ) : (
+                 res.data.data[0].manualSize['pant']
+               ),
+           };
+           
+           singleOrderArray.push(itemsObject1);
+           
+           singleOrderArray.push(itemsObject2);
+
+       }
       } else {
         for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
           let itemsObject = {
@@ -981,7 +1148,7 @@ export default function EditOrderWithManualSize() {
         }
       }
     }
-
+    console.log("sing: ", singleOrderArray)
     const orderItemsArrayPDFString = JSON.stringify(orderItemsArrayPDF)
     const singleOrderArrayString = JSON.stringify(singleOrderArray)
 
@@ -1070,10 +1237,23 @@ export default function EditOrderWithManualSize() {
   
   
   const handleOpenManual = (name) => {
+    console.log("name: ", name)
     if(name == "suit"){
       const suits = Object.keys(suitcustomerMeasurements)
       
       setSuitProducts(suits)
+      // const type = Object.fromEntries(
+      //   Object.entries(suitcustomerMeasurements[name])
+      // ).fitting_type;
+      // setFittingType(type);
+      setManualSizeFor(name);
+      setopenManual(true);
+    } else if(name == "tuxedo"){
+      console.log("going in here")
+      const tuxedos = Object.keys(tuxedocustomerMeasurements)
+      
+      // setSuitProducts(suits)
+      setTuxedoProducts(tuxedos)
       // const type = Object.fromEntries(
       //   Object.entries(suitcustomerMeasurements[name])
       // ).fitting_type;
@@ -1089,7 +1269,7 @@ export default function EditOrderWithManualSize() {
       setopenManual(true);
     }
   };
-
+  console.log("products: ", tuxedoProducts)
   const handleManualSize = async (e) => {
     const { name, value } = e.target;
     manualSizeObject[manualSizeFor][name] = value;
@@ -1153,6 +1333,44 @@ export default function EditOrderWithManualSize() {
     }, 500)
   }
 
+  const downloadTuxedoScreenshot = async(productName) => {
+    setEditOrderButton(true)
+    takeScreenShot(ref.current).then(async(image)=>{
+    const a = document.createElement("a");
+    a.href = image;
+    const res = await axiosInstance.post("/image/uploadManualImage", {
+      image: a.href,
+    });
+
+    const addManualSizeObject = new Promise ((resolve, reject) => {
+      try{ 
+       if(manualSizeObject[productName]){
+             manualSizeObject[productName]["imagePic"] = res.data.data;
+             setManualSizeObject({ ...manualSizeObject });
+           }else{
+             const obj = {}
+             obj['imagePic'] = res.data.data;
+             manualSizeObject[productName] = obj;
+             setManualSizeObject({ ...manualSizeObject });
+           }
+       resolve()
+     }catch(err){
+       reject()
+     }
+   })
+
+   if(res.data.status == true){
+    addManualSizeObject.then(()=>{
+      setEditOrderButton(false)
+    });
+   }
+    });
+    setTimeout(() => {
+      setItems([])
+      setSuccessMsg("Successfully Done.")
+    }, 500)
+  }
+
   
   
   const downloadScreenshot = async(productName) => {
@@ -1161,13 +1379,11 @@ export default function EditOrderWithManualSize() {
     takeScreenShot(ref.current).then(async(image)=>{
     const a = document.createElement("a");
     a.href = image;
-    console.log("sameer")
     const res = await axiosInstance.post("/image/uploadManualImage", {
       image: a.href,
     });
     
     const addManualSizeObject = new Promise ((resolve, reject) => {
-      console.log("abbas")
        try{ 
         if(manualSizeObject[productName]){
           manualSizeObject[productName]["imagePic"] = res.data.data;
@@ -1470,6 +1686,128 @@ console.log("manual: ", manualSizeObject)
 
 //------------- END --------------------//
 
+//------------- TUXEDO Mesurement --------------------//
+
+  const handleTuxedoMeasurements = async (e) => {
+    for (let x of Object.keys(tuxedocustomerMeasurements)) {
+      const product = products.filter((pro) => {
+        return pro.name == x;
+      });
+
+      if(customer["measurementsObject"]){
+
+
+        if(Object.keys(customer['measurementsObject']).includes('pant') == true){
+
+          if(customer['measurementsObject'][x]?.["fitting_type"]){
+            tuxedocustomerMeasurements[x]["fitting_type"] = customer['measurementsObject'][x]['fitting_type']
+            setTuxedoCustomerMeasurements({ ...tuxedocustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["measurements"]) {
+            tuxedocustomerMeasurements[x]["measurements"] = customer['measurementsObject'][x]['measurements']
+            setTuxedoCustomerMeasurements({ ...tuxedocustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["pant_type"]) {
+            tuxedocustomerMeasurements[x]["pant_type"] = customer['measurementsObject'][x]['pant_type']
+            setTuxedoCustomerMeasurements({ ...tuxedocustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["notes"]) {
+            tuxedocustomerMeasurements[x]["notes"] = customer['measurementsObject'][x]['notes']
+            setTuxedoCustomerMeasurements({ ...tuxedocustomerMeasurements });
+          }
+        }
+        if(Object.keys(customer['measurementsObject']).includes('tuxedojacket')== true){
+
+          if(customer['measurementsObject'][x]?.["fitting_type"]){
+            tuxedocustomerMeasurements[x]["fitting_type"] = customer['measurementsObject'][x]['fitting_type']
+            setTuxedoCustomerMeasurements({ ...tuxedocustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["measurements"]) {
+            tuxedocustomerMeasurements[x]["measurements"] = customer['measurementsObject'][x]['measurements']
+            setTuxedoCustomerMeasurements({ ...tuxedocustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["shoulder_type"]) {
+            tuxedocustomerMeasurements[x]["shoulder_type"] = customer['measurementsObject'][x]['shoulder_type']
+            setTuxedoCustomerMeasurements({ ...tuxedocustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["notes"]) {
+            tuxedocustomerMeasurements[x]["notes"] = customer['measurementsObject'][x]['notes']
+            setTuxedoCustomerMeasurements({ ...tuxedocustomerMeasurements });
+          }
+        }
+
+      }else{
+        setProductMeasurements1(tuxedocustomerMeasurements[x]["measurements"])
+      }
+
+      let check = "true";
+
+      Object.keys(tuxedocustomerMeasurements[x]["measurements"]).map(
+        (measurements) => {
+          if (
+            !tuxedocustomerMeasurements[x]["measurements"][measurements][
+              "total_value"
+            ] > 0
+          ) {
+            check = "false";
+          }
+        }
+      );
+      if (check == "false") {
+        setIsMeasurementFilled(false);
+      } else {
+        setIsMeasurementFilled(true);
+      }
+
+      for (let i = 0; i < product.length; i++) {
+        let res = await axiosInstance.post(
+          "/customFittings/fetch/" + product[i]._id,
+          { token: user.data.token }
+        );
+
+        newTuxedoMeasurement.push({
+          name: product[i].name,
+          measurements: product[i].measurements,
+          custom: res.data.data,
+          m: tuxedocustomerMeasurements[x]["measurements"],
+        });
+      }
+
+      setNewTuxedoMeasurement([...newTuxedoMeasurement]);
+    }
+    setProduct_name('tuxedo')
+    setIsActive4(true);
+    setTuxedoOpen(true);
+  };
+  const tuxedoSave = async (e) => {
+    setIsActive4(false);
+
+    const res = await axiosInstance.put(
+      "/userMeasurement/updateTuxedoCustomerMeasurements/" + path,
+      {
+        measurements: { ...tuxedocustomerMeasurements },
+      }
+    );
+
+    customer["tuxedo"] = { ...tuxedocustomerMeasurements } ;
+    setCustomer({ ...customer });
+
+    if (res.data.data["tuxedo"] &&
+      orders.length == Object.keys(res.data.data["tuxedo"]).length
+    ) {
+      setCanPlaceOrder(true);
+    }
+    setCanPlaceOrder(true);
+
+    setTuxedoFilledMeasurement('tuxedo');
+
+    measurementsFinished['tuxedo'] = true
+    setMeasurementsFinished({...measurementsFinished})
+
+    setTuxedoOpen(false);
+    setNewTuxedoMeasurement([]);
+  };
+
 
 const action = (
   <React.Fragment>
@@ -1586,14 +1924,19 @@ const action = (
                       data-name={products.item_name}
                       onClick={
                         products.item_name === "suit"
-                          ? handleSuitMeasurement
-                          : handleManageMeasurement
+                          ? handleSuitMeasurement 
+                          :
+                          products.item_name === "tuxedo" 
+                          ?
+                          handleTuxedoMeasurements
+                          : 
+                          handleManageMeasurement
                       }
-                      style={filledMeasurements.includes(products.item_name) || suitFilledMeasurements.includes(products.item_name)
+                      style={filledMeasurements.includes(products.item_name) || suitFilledMeasurements.includes(products.item_name) || tuxedoFilledMeasurements.includes(products.item_name)
                         ? completeMeasurementStyles
                         : missingMeasurementStyles}
                     >
-                      {filledMeasurements.includes(products.item_name) || suitFilledMeasurements.includes(products.item_name)
+                      {filledMeasurements.includes(products.item_name) || suitFilledMeasurements.includes(products.item_name) || tuxedoFilledMeasurements.includes(products.item_name)
                         ? "Complete"
                         : "Missing"}
                     </span>
@@ -1986,7 +2329,289 @@ const action = (
                 </TabPanel>
                 ))}
               </Box>
-              ) : manualSizeFor === "jacket" ||
+              ) : manualSizeFor === "tuxedo" ? (
+                <Box sx={{ width: '100%' }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                  <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+                  {tuxedoProducts.length > 0 && tuxedoProducts.map((pro, i)=> (
+                    <Tab 
+                      label={pro}
+                      id ={`simple-tab-${i}`}
+                      aria-controls = {`simple-tabpanel-${i}`}
+                    />
+                  ))}
+                  </Tabs>
+                </Box>
+                {tuxedoProducts.length > 0 && tuxedoProducts.map((pro, j)=> (
+                  <TabPanel value={value} index={j}>
+                  <div>
+                  {pro === "tuxedojacket" ? (
+                    <>
+                      <div className="n1Class">
+                        <div id="new-item">
+                          <input
+                            value={item}
+                            onChange={(e) => setItem(e.target.value)}
+                            placeholder="Enter something..."
+                            onKeyPress={(e) => keyPress(e)}
+                          />
+                          <button onClick={newitem}>ENTER</button>
+                        </div>
+                        <div className="capture-image-container">
+                          <div className="capture-image" ref={ref}>
+                            <div id="items">
+                              {items.map((item, index) => {
+                                return (
+                                  <Draggable
+                                    key={item.id}
+                                    defaultPosition={item.defaultPos}
+                                    onStop={(e, data) => {
+                                      updatePos(data, index);
+                                    }}
+                                  >
+                                    <div
+                                      style={{ backgroundColor: item.color }}
+                                      className="box"
+                                    >
+                                      {typeof item.item === 'string' ?
+                                        <p style={{ margin: 0 }}>{item.item}</p>
+                                        :
+                                        <p style={{ margin: 0 }}>{item.item[0] !== 0 ? item.item[0] : ""}<sup>{item.item[1]}</sup>&frasl;<sub>{item.item[2]}</sub></p>
+                                      }
+                                      <button
+                                        id="delete"
+                                        onClick={(e) => deleteNote(item.id)}
+                                      >
+                                        X
+                                      </button>
+                                    </div>
+                                  </Draggable>
+                                );
+                              })}
+                            </div>
+                            <div className="custome_row">
+                              <div className="col_14">
+                                <div className="manaual_mesuring_card n1">
+                                  <div className="leftBottomChenter">
+                                    <p style={{ fontSize: "20px", fontWeight: 500 }}>
+                                      อก =
+                                    </p>
+                                    <p style={{ fontSize: "20px", fontWeight: 500 }}>
+                                      เอา =
+                                    </p>
+                                  </div>
+    
+                                  <img src={Jacket} className="img_fluid"></img>
+                                  <input
+                                    className="top_left manual_input-design"
+                                    placeholder="type"
+                                    // value={manualSizeObject[manualSizeFor]["input_one"]}
+                                    // name="input_one"
+                                    // onChange={handleManualSize}
+                                  />
+                                  <input
+                                    className="right_top manual_input-design"
+                                    placeholder="type"
+                                    name="input_two"
+                                    // value={manualSizeObject[manualSizeFor]["input_two"]}
+                                    // onChange={handleManualSize}
+                                  />
+                                </div>
+                              </div>
+                              <div className="col_14">
+                                <div className="manaual_mesuring_card n2">
+                                  <img src={Jacket1} className="img_fluid"></img>
+                                  <div className="compressed-layer">
+                                    <p style={{ fontSize: "18px", fontWeight: 500 }}>
+                                      อัดชั้น :
+                                    </p>
+                                    <select
+                                      className="fitting-dropdown"
+                                      name="dropdown_bottom"
+                                      // value={
+                                      //   manualSizeObject[manualSizeFor][
+                                      //   "dropdown_bottom"
+                                      //   ]
+                                      // }
+                                      // onChange={handleManualSize}
+                                    >
+                                      <option>-Select-</option>
+                                      <option value="ชีฟอง">ชีฟอง</option>
+                                      <option value="หนังไก่">หนังไก่</option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="col_14">
+                                <div className="manaual_mesuring_card n3">
+                                  <img src={Jacket2} className="img_fluid"></img>
+                                </div>
+                              </div>
+                              <div className="col_14">
+                                <div className="manaual_mesuring_card n4">
+                                  <div className="shoulder-support">
+                                    <p style={{ fontSize: "18px", fontWeight: 500 }}>
+                                      หนุนไหล่ :
+                                    </p>
+                                    <select
+                                      className="fitting-dropdown"
+                                      name="dropdown_top"
+                                      // value={
+                                      //   manualSizeObject[manualSizeFor]["dropdown_top"]
+                                      // }
+                                      // onChange={handleManualSize}
+                                    >
+                                      <option>-Select-</option>
+                                      <option value="บางมาก">บางมาก</option>
+                                      <option value="กลาง">กลาง</option>
+                                      <option value="เต็ม">เต็ม</option>
+                                      <option value="ไม่ใส่">ไม่ใส่</option>
+                                    </select>
+                                  </div>
+    
+                                  <img src={Jacket3} className="img_fluid"></img>
+                                  <input
+                                    className="right_top manual_input-design"
+                                    placeholder="type"
+                                    name="input_three"
+                                    // value={
+                                    //   manualSizeObject[manualSizeFor]["input_three"]
+                                    // }
+                                    // onChange={handleManualSize}
+                                  />
+                                  <input
+                                    className="manualinput manual_input-design"
+                                    placeholder="type"
+                                    name="input_four"
+                                    // value={
+                                    //   manualSizeObject[manualSizeFor]["input_four"]
+                                    // }
+                                    // onChange={handleManualSize}
+                                  />
+                                  <div className="tradesman">
+                                    <p
+                                      className="title"
+                                      style={{ fontSize: "18px", fontWeight: 500 }}
+                                    >
+                                      ช่าง :
+                                    </p>
+                                    <select
+                                      className="fitting-dropdown"
+                                      name="dropdown_three"
+                                      // value={
+                                      //   manualSizeObject[manualSizeFor][
+                                      //   "dropdown_three"
+                                      //   ]
+                                      // }
+                                      // onChange={handleManualSize}
+                                    >
+                                      <option>-Select-</option>
+                                      <option value="ลุง">ลุง</option>
+                                      <option value="ควร">ควร</option>
+                                      <option value="pattern + ควร">
+                                        pattern + ควร
+                                      </option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="boxedTWo mt-15">
+                          <button
+                            type="button"
+                            className="custom-btn"
+                            onClick={()=>downloadTuxedoScreenshot(pro)}
+                          >
+                            Jacket Save
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  ) : pro === "pant" ? (
+                    <>
+                      <div className="n1Class">
+                        <div id="new-item">
+                          <input
+                            value={item}
+                            onChange={(e) => setItem(e.target.value)}
+                            placeholder="Enter something..."
+                            onKeyPress={(e) => keyPress(e)}
+                          />
+                          <button onClick={newitem}>ENTER</button>
+                        </div>
+                        <div className="custome_row">
+                          <div className="col_6 mx_auto">
+                            <div className="manaual_mesuring_card" ref={ref}>
+                              <div id="items">
+                                {items.map((item, index) => {
+                                  return (
+                                    <Draggable
+                                      key={item.id}
+                                      defaultPosition={item.defaultPos}
+                                      onStop={(e, data) => {
+                                        updatePos(data, index);
+                                      }}
+                                    >
+                                      <div
+                                        style={{ backgroundColor: item.color }}
+                                        className="box"
+                                      >
+                                        {typeof item.item === 'string' ?
+                                          <p style={{ margin: 0 }}>{item.item}</p>
+                                          :
+                                          <p style={{ margin: 0 }}>{item.item[0] !== 0 ? item.item[0] : ""}<sup>{item.item[1]}</sup>&frasl;<sub>{item.item[2]}</sub></p>
+                                        }
+                                        <button
+                                          id="delete"
+                                          onClick={(e) => deleteNote(item.id)}
+                                        >
+                                          X
+                                        </button>
+                                      </div>
+                                    </Draggable>
+                                  );
+                                })}
+                              </div>
+                              <img src={Pant} className="img_fluid"></img>
+                              <input
+                                className="manualinput manual_input-design"
+                                placeholder="type"
+                                name="input_one"
+                                // value={manualSizeObject[manualSizeFor]["input_one"]}
+                                // onChange={handleManualSize}
+                              ></input>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="boxedTWo mt-15">
+                          <button
+                            type="button"
+                            className="custom-btn"
+                            onClick={()=>downloadTuxedoScreenshot(pro)}
+                          >
+                            Pant Save
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+
+                  <button
+                    type="button"
+                    className="custom-btn"
+                    onClick={()=>setopenManual(false)}
+                  >
+                    Save
+                  </button>
+                  </div>
+                </TabPanel>
+                ))}
+              </Box>
+              ): manualSizeFor === "jacket" ||
                   manualSizeFor === "longtail" ||
                   manualSizeFor === "overcoat" ? (
                 <>
@@ -2418,415 +3043,21 @@ const action = (
             setSuitCustomerMeasurements = {setSuitCustomerMeasurements}
             suitSave = {suitSave}
           />
-          {/* <>
-            {newMeasurement.map((measurement, index) => {
-              return (
-                <>
-                  <div
-                    style={{
-                      marginTop: "15px",
-                      borderBottom: "2px solid #e1e1e1",
-                    }}
-                  >
-                    <div className="selecting-size">
-                      <div className="form-group">
-                        <strong>
-                          {measurement.name.charAt(0).toUpperCase() +
-                            measurement.name.slice(1)}{" "}
-                        </strong>
-                      </div>
-                    </div>
-                    <div className="selecting-size">
-                      <div className="form-group">
-                        <label> Manual Fit </label>
-                        <select
-                          className="searchinput"
-                          onChange={(event) =>
-                            handleSuitCustomFitValue(measurement.name, event)
-                          }
-                        >
-                          <option value="0"> Select Size </option>
-                          {measurement.custom !== null ? (
-                            measurement.custom.map((fit, i) => {
-                              return (
-                                <option
-                                  key={i}
-                                  selected={
-                                    suitcustomerMeasurements[
-                                      measurement.name
-                                    ] &&
-                                    suitcustomerMeasurements[measurement.name][
-                                      "fitting_type"
-                                    ] == fit.fitting_name
-                                      ? true
-                                      : false
-                                  }
-                                  value={fit.fitting_name}
-                                >
-                                  {fit.fitting_name}
-                                </option>
-                              );
-                            })
-                          ) : (
-                            <></>
-                          )}
-                        </select>
-                      </div>
-                    </div>
-                    <div className="f" key={index}>
-                      <div className="step-2Style-left">
-                        <div className="measurment-units-boxes">
-                          <table>
-                            <thead>
-                              <tr>
-                                <th> Measurement Name </th>
-                                <th> Value </th>
-                                <th> Adjustment </th>
-                                <th> Total value </th>
-                                <th></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {Object.keys(measurement.m)
-                                .slice(
-                                  0,
-                                  Math.ceil(
-                                    Object.keys(measurement.m).length / 2
-                                  )
-                                )
-                                .map((data, i) => {
-                                  return (
-                                    <tr key={data}>
-                                      <td>{data.charAt(0).toUpperCase() + data.slice(1)}</td>
-                                      <td>
-                                        <input
-                                          type="number"
-                                          className="searchinput"
-                                          name={data + "-value"}
-                                          value={measurement.m[data]["value"]}
-                                          // value={productMeasurements1[data]['value']}
-                                          onChange={suithandleValueChange}
-                                          onClick={handleOnClick}
-                                        />
-                                      </td>
-                                      <td>
-                                        <input
-                                          type="number"
-                                          className="searchinput"
-                                          value={
-                                            measurement.m[data][
-                                              "adjustment_value"
-                                            ]
-                                          }
-                                          // value={productMeasurements1[data]['adjustment_value']}
-                                          disabled={adjustmentValueImmutable}
-                                          name={data + "-adjustment_value"}
-                                          onChange={suithandleValueChange}
-                                          onClick={handleOnClick}
-                                        />
-                                      </td>
-                                      <td>
-                                        <input
-                                          type="number"
-                                          className="searchinput"
-                                          disabled
-                                          value={
-                                            measurement.m[data]["total_value"]
-                                          }
-                                          // value={productMeasurements1[data]['total_value']}
-                                          name={data + "-total_value"}
-                                          onChange={suithandleValueChange}
-                                          onClick={handleOnClick}
-                                        />
-                                      </td>
-                                      
-                                      <td>
-                                        {draftMeasurementsObject  && draftMeasurementsObject[measurement.name] && draftMeasurementsObject[measurement.name]['measurements'][data] && Number(draftMeasurementsObject[measurement.name]['measurements'][data]['total_value']) !== Number(measurement.m[data]["total_value"])
-                                        ?
-                                        <span style={{color: "green"}}><CheckCircleOutlineIcon/></span>
-                                        :
-                                        <></>
-                                        }
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                      <div className="step-2Style-rigth">
-                        <div className="measurment-units-boxes">
-                          <table>
-                            <thead>
-                              <tr>
-                                <th> Measurement Name </th>
-                                <th> Value </th>
-                                <th> Adjustment </th>
-                                <th> Total value </th>
-                                <th></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {Object.keys(measurement.m)
-                                .slice(
-                                  Math.ceil(
-                                    Object.keys(measurement.m).length / 2
-                                  ),
-                                  measurement.length
-                                )
-                                .map((data, i) => {
-                                  return (
-                                    <tr key={i}>
-                                      <td>{data.charAt(0).toUpperCase() + data.slice(1)}</td>
-                                      <td>
-                                        <input
-                                          type="number"
-                                          className="searchinput"
-                                          value={measurement.m[data]["value"]}
-                                          name={data + "-value"}
-                                          onChange={suithandleValueChange}
-                                          onClick={handleOnClick}
-                                        />
-                                      </td>
-                                      <td>
-                                        <input
-                                          type="number"
-                                          className="searchinput"
-                                          value={
-                                            measurement.m[data][
-                                              "adjustment_value"
-                                            ]
-                                          }
-                                          disabled={adjustmentValueImmutable}
-                                          name={data + "-adjustment_value"}
-                                          onChange={suithandleValueChange}
-                                          onClick={handleOnClick}
-                                        />
-                                      </td>
-                                      <td>
-                                        <input
-                                          type="number"
-                                          className="searchinput"
-                                          disabled
-                                          value={
-                                            measurement.m[data]["total_value"]
-                                          }
-                                          name={data + "-total_value"}
-                                          onChange={suithandleValueChange}
-                                          onClick={handleOnClick}
-                                        />
-                                      </td>
-                                      
-                                      <td>
-                                        {draftMeasurementsObject  && draftMeasurementsObject[measurement.name] && draftMeasurementsObject[measurement.name]['measurements'][data] && Number(draftMeasurementsObject[measurement.name]['measurements'][data]['total_value']) !== Number(measurement.m[data]["total_value"])
-                                        ?
-                                        <span style={{color: "green"}}><CheckCircleOutlineIcon/></span>
-                                        :
-                                        <></>
-                                        }
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                    {measurement.name == "jacket" ? (
-                      <div className="fabric-types_NM">
-                        <h3 className="steper-title"> Shoulder Type </h3>
-                        <ul className="fabricselection_Common_NM">
-                          <li>
-                            <input
-                              type="radio"
-                              value="sloping"
-                              name="d"
-                              id="sloping"
-                              checked={
-                                suitcustomerMeasurements[measurement.name] &&
-                                suitcustomerMeasurements[measurement.name][
-                                  "shoulder_type"
-                                ] == "sloping"
-                                  ? true
-                                  : false
-                              }
-                              onChange={(event) =>
-                                handleSuitTypeChangeType(
-                                  measurement.name,
-                                  event
-                                )
-                              }
-                            />
+        </Dialog>
 
-                            <label htmlFor="sloping">
-                              <img
-                                src="/ImagesFabric/jacket/Sloping.png"
-                                alt=""
-                              />
-                              <p> Sloping</p>
-                            </label>
-                          </li>
-                          <li>
-                            <input
-                              type="radio"
-                              value="standard"
-                              name="d"
-                              id="standard"
-                              checked={
-                                suitcustomerMeasurements[measurement.name] &&
-                                suitcustomerMeasurements[measurement.name][
-                                  "shoulder_type"
-                                ] == "standard"
-                                  ? true
-                                  : false
-                              }
-                              onChange={(event) =>
-                                handleSuitTypeChangeType(
-                                  measurement.name,
-                                  event
-                                )
-                              }
-                            />
-                            <label htmlFor="standard">
-                              <img
-                                src="/ImagesFabric/jacket/Standard.png"
-                                alt=""
-                              />
-                              <p> Standard</p>
-                            </label>
-                          </li>
-                          <li>
-                            <input
-                              type="radio"
-                              value="square"
-                              name="d"
-                              id="square"
-                              checked={
-                                suitcustomerMeasurements[measurement.name] &&
-                                suitcustomerMeasurements[measurement.name][
-                                  "shoulder_type"
-                                ] == "square"
-                                  ? true
-                                  : false
-                              }
-                              onChange={(event) =>
-                                handleSuitTypeChangeType(
-                                  measurement.name,
-                                  event
-                                )
-                              }
-                            />
-                            <label htmlFor="square">
-                              <img
-                                src="/ImagesFabric/jacket/Square.png"
-                                alt=""
-                              />
-                              <p> Square</p>
-                            </label>
-                          </li>
-                        </ul>
-                      </div>
-                    ) : (
-                      <></>
-                    )}
-                    {measurement.name == "pant" ? (
-                      <div className="fabric-types_NM">
-                        <h3 className="steper-title"> Pants Type </h3>
-                        <ul className="fabricselection_Common_NM">
-                          <li>
-                            <input
-                              type="radio"
-                              value="standard"
-                              name="radioin"
-                              id="standards"
-                              checked={
-                                suitcustomerMeasurements[measurement.name] &&
-                                suitcustomerMeasurements[measurement.name][
-                                  "pant_type"
-                                ] == "standard"
-                                  ? true
-                                  : false
-                              }
-                              onChange={(event) =>
-                                handleSuitTypeChangeType(
-                                  measurement.name,
-                                  event
-                                )
-                              }
-                            />
-                            <label htmlFor="standards">
-                              <img
-                                src="/ImagesFabric/pants/Standard.png"
-                                alt=""
-                              />
-                              <p> Standard</p>
-                            </label>
-                          </li>
-                          <li>
-                            <input
-                              type="radio"
-                              value="slimfit"
-                              name="radioin"
-                              id="slimfit"
-                              checked={
-                                suitcustomerMeasurements[measurement.name] &&
-                                suitcustomerMeasurements[measurement.name][
-                                  "pant_type"
-                                ] == "slimfit"
-                                  ? true
-                                  : false
-                              }
-                              onChange={(event) =>
-                                handleSuitTypeChangeType(
-                                  measurement.name,
-                                  event
-                                )
-                              }
-                            />
-                            <label htmlFor="slimfit">
-                              <img
-                                src="/ImagesFabric/pants/SlimFit.png"
-                                alt=""
-                              />
-                              <p> Slim Fit</p>
-                            </label>
-                          </li>
-                        </ul>
-                      </div>
-                    ) : (
-                      <></>
-                    )}
-
-                    <div className="form-group">
-                      <label className="note"> Note </label>
-                      <textarea
-                        className="searchinput"
-                        value={
-                          suitcustomerMeasurements[measurement.name] &&
-                          suitcustomerMeasurements[measurement.name]["notes"]
-                            ? suitcustomerMeasurements[measurement.name][
-                                "notes"
-                              ]
-                            : ""
-                        }
-                        onChange={(event) =>
-                          handleSuitNoteChange(measurement.name, event)
-                        }
-                      />
-                    </div>
-                  </div>
-                </>
-              );
-            })}
-
-            <div>
-              <Button className="custom-btn" onClick={suitSave}>
-                Save
-              </Button>
-            </div>
-          </> */}
+        <Dialog
+          onClose={handleCloseTuxedo}
+          open={tuxedoOpen}
+          className={isActive4 ? "rigth-sideModel mui_show" : "rigth-sideModel"}
+        >
+          <DialogTitle>Product Measurement</DialogTitle>
+          <TuxedoMeasurements
+            newTuxedoMeasurement = {newTuxedoMeasurement}
+            setNewTuxedoMeasurement={setNewTuxedoMeasurement}
+            tuxedoCustomerMeasurements = {tuxedocustomerMeasurements}
+            setTuxedoCustomerMeasurements = {setTuxedoCustomerMeasurements}
+            tuxedoSave = {tuxedoSave}
+          />
         </Dialog>
 
         <Dialog

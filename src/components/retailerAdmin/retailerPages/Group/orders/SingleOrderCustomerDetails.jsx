@@ -38,6 +38,7 @@ export default function SingleOrderCustomerDetails() {
   const handlePrintPDF = async (e, i) => {
     setGeneratePDFButton(true)
     const newOrderObject = JSON.parse(JSON.stringify(orders[i]))
+    console.log("newOrderObject: ", newOrderObject)
     const thisCustomer = orders[i]['customer_id']
     delete newOrderObject['customers']
     delete newOrderObject['customer_quantity']
@@ -63,6 +64,13 @@ export default function SingleOrderCustomerDetails() {
           pant: thisCustomer['measurementsObject']['pant']
         }
         newOrderObject['Suitmeasurements'] = suitMeas
+      }
+      if (x['item_name'] == "tuxedo") {
+        const tuxMeas = {
+          tuxedojacket: thisCustomer['measurementsObject']['tuxedojacket'],
+          pant: thisCustomer['measurementsObject']['pant']
+        }
+        newOrderObject['Tuxedomeasurements'] = tuxMeas
       }
     }
     // console
@@ -92,7 +100,7 @@ export default function SingleOrderCustomerDetails() {
   const exportPDF = async (thisOrder, draftMeasurementsObj) => {
 
     let orderItemsArrayPDF = [];
-
+console.log("thisORder: ", thisOrder)
     let justAnArray = [];
 
 
@@ -120,6 +128,23 @@ export default function SingleOrderCustomerDetails() {
           let itemsObject1 = {
             item_name: m["item_name"],
             item_code: "jacket " + n,
+            quantity: m["quantity"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+          let itemsObject2 = {
+            item_name: m["item_name"],
+            item_code: "pant " + n,
+            quantity: m["quantity"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+          orderItemsArray.push(itemsObject1);
+          orderItemsArray.push(itemsObject2);
+        }
+      } else if (m.item_name == "tuxedo") {
+        for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
+          let itemsObject1 = {
+            item_name: m["item_name"],
+            item_code: "tuxedojacket " + n,
             quantity: m["quantity"],
             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
           };
@@ -162,6 +187,44 @@ export default function SingleOrderCustomerDetails() {
           let itemsObject1 = {
             item_name: m["item_name"],
             item_code: "jacket " + n,
+            quantity: m["quantity"],
+            repeatOrder: thisOrder["repeatOrder"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+
+          if (j % 5 == 0 || orderItemsArray.length == j) {
+            justAnArray.push(itemsObject1);
+            orderItemsArrayPDF.push(justAnArray);
+            justAnArray = [];
+          } else {
+            justAnArray.push(itemsObject1);
+          }
+
+          j = j + 1;
+
+          let itemsObject2 = {
+            item_name: m["item_name"],
+            item_code: "pant " + n,
+            quantity: m["quantity"],
+            repeatOrder: thisOrder["repeatOrder"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+
+          if (j % 5 == 0 || orderItemsArray.length == j) {
+            justAnArray.push(itemsObject2);
+            orderItemsArrayPDF.push(justAnArray);
+            justAnArray = [];
+          } else {
+            justAnArray.push(itemsObject2);
+          }
+
+          j = j + 1;
+        }
+      } else if (m.item_name == "tuxedo") {
+        for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
+          let itemsObject1 = {
+            item_name: m["item_name"],
+            item_code: "tuxedojacket " + n,
             quantity: m["quantity"],
             repeatOrder: thisOrder["repeatOrder"],
             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
@@ -256,6 +319,42 @@ export default function SingleOrderCustomerDetails() {
           singleOrderArray.push(itemsObject2);
 
         }
+      } else if (m.item_name == "tuxedo") {
+        for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
+
+          let itemsObject1 = {
+            item_name: m["item_name"],
+            item_code: "tuxedojacket " + n,
+            quantity: m["quantity"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+            measurementsObject: thisOrder.Tuxedomeasurements['tuxedojacket'],
+            manualSize:
+              thisOrder.manualSize == null ? (
+                <></>
+              ) : (
+                thisOrder.manualSize['tuxedojacket']
+              ),
+          };
+
+          let itemsObject2 = {
+            item_name: m["item_name"],
+            item_code: "pant " + n,
+            quantity: m["quantity"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+            measurementsObject: thisOrder.Tuxedomeasurements['pant'],
+            manualSize:
+              thisOrder.manualSize == null ? (
+                <></>
+              ) : (
+                thisOrder.manualSize['pant']
+              ),
+          };
+
+          singleOrderArray.push(itemsObject1);
+
+          singleOrderArray.push(itemsObject2);
+
+        }
       } else {
         for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
           let itemsObject = {
@@ -275,7 +374,6 @@ export default function SingleOrderCustomerDetails() {
         }
       }
     }
-    console.log("single: ", singleOrderArray)
     const orderItemsArrayPDFString = JSON.stringify(orderItemsArrayPDF)
 
     const singleOrderArrayString = JSON.stringify(singleOrderArray)
@@ -284,6 +382,7 @@ export default function SingleOrderCustomerDetails() {
     const productFeaturesObjectString = JSON.stringify(productFeaturesObject)
     const draftMeasurementsObjString = JSON.stringify(draftMeasurementsObj)
 
+    console.log("singleOrderArray: ", singleOrderArray)
     const pdfString = await axiosInstance2.post('customerOrders/createPdf', {
       token: user.data.token,
       productFeaturesObject: productFeaturesObjectString,
@@ -334,7 +433,6 @@ export default function SingleOrderCustomerDetails() {
     setOrders(res.data.data)
   }
 
-  console.log("orders: ", orders)
 
   const fetchProducts = async () => {
     const res = await axiosInstance.post("/product/fetchAll/0/0", {

@@ -29,6 +29,8 @@ import Styles from './Styles';
 import AdditionalStyles from './AdditionalStyles';
 import SuitStyles from "./SuitStyles";
 import SuitAdditionalStyles from './SuitAdditionalStyles';
+import TuxedoStyles from "./TuxedoStyles"
+import TuxedoAdditionalStyles from "./TuxedoAdditionalStyles"
 
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -412,6 +414,7 @@ export default function MissingFabric(props) {
   const [piping, setPiping] = useState([]);
   const [imageData, setImageData] = useState(null);
   const [imageDataSuit, setImageDataSuit] = useState(null);
+  const [imageDataTuxedo, setImageDataTuxedo] = useState(null);
   const [imageDataJacket, setImageDataJacket] = useState(null);
   const [imageDataPant, setImageDataPant] = useState(null);
   const [productID, setProductID] = useState("");
@@ -422,23 +425,33 @@ export default function MissingFabric(props) {
   const [stylesArray, setStylesArray] = useState({});
   // suit state
   const [SuitstyleObject, setSuitstyleObject] = useState({});
+  const [TuxedostyleObject, setTuxedostyleObject] = useState({});
   const [SuitPant, setSuitPant] = useState([]);
   const [SuitJacket, setSuitJacket] = useState([]);
+  const [TuxedoPant, setTuxedoPant] = useState([]);
+  const [TuxedoJacket, setTuxedoJacket] = useState([]);
   const [suitOrderQuantityArray, setSuitOrderQuantityArray] = useState([]);
+  const [tuxeodOrderQuantityArray, setTuxeodOrderQuantityArray] = useState([]);
   const [SuitstylesArray, setSuitstylesArray] = useState({});
+  const [TuxedostylesArray, setTuxedostylesArray] = useState({});
 
   const [normalStyleCount, setNormalStyleCount] = useState(0);
   const [normalJacketStyleCount, setNormalJacketStyleCount] = useState(0);
+  const [normalTuxedoJacketStyleCount, setNormalTuxedoJacketStyleCount] = useState(0);
   const [normalPantStyleCount, setNormalPantStyleCount] = useState(0);
+  const [normalTuxedoPantStyleCount, setNormalTuxedoPantStyleCount] = useState(0);
   const [featuresNameArray, setFeaturesNameArray] = useState([]);
   const [groupFeaturesNamesArray2, setGroupFeaturesNamesArray2] = useState({});
   const [suitFeaturesNameArray, setSuitFeaturesNameArray] = useState({})
+  const [tuxedoFeaturesNameArray, setTuxedoFeaturesNameArray] = useState({})
   const [suitGroupFeaturesNamesArray, setSuitGroupFeaturesNamesArray] = useState({});
+  const [tuxedoGroupFeaturesNamesArray, setTuxedoGroupFeaturesNamesArray] = useState({});
   const [showMonogram, setShowMonogram] = useState({})
   const [showAdditionalStyles, setShowAdditionalStyles] = useState({})
   const [showSuitAdditionalStyles, setShowSuitAdditionalStyles] = useState({})
+  const [showTuxedoAdditionalStyles, setShowTuxedoAdditionalStyles] = useState({})
 
-// console.log("product name: ", product)
+  // console.log("product name: ", product)
   useEffect(() => {
     const fetchProduct = async () => {
       if (props.data == "suit") {
@@ -487,6 +500,56 @@ export default function MissingFabric(props) {
 
             setSuitstylesArray(arrayOneMore);
             setSuitOrderQuantityArray(array);
+
+          }
+        }
+      }
+      else if (props.data == "tuxedo") {
+        let arr = ["tuxedojacket", "pant"];
+        for (let x of props.orders) {
+          if (x.item_name == "tuxedo") {
+            setTuxedostyleObject(x);
+            let array = [];
+            let arrayOneMore = {};
+            for (let i = 0; i < x.quantity; i++) {
+              if (x.styles && x.styles["tuxedo" + "_" + i]) {
+                if (x.quantity > Object.keys(x.styles).length) {
+                  let extraQuantity =
+                    x.quantity > Object.keys(x.styles["tuxedo" + "_" + i]).length;
+                  for (let m = 1; m <= extraQuantity; m++) {
+                    let itemId = "tuxedo" + "_" + (i + m);
+                    arrayOneMore[itemId] = {
+                      jacket: {}
+                    };
+                  }
+                }
+                let itemId = "tuxedo" + "_" + i;
+                arrayOneMore[itemId] = x.styles["tuxedo" + "_" + i];
+              } else if (x.styles && x.styles[0] !== undefined && x.styles[0]["tuxedo" + "_" + i]) {
+                if (x.quantity > Object.keys(x.styles[0]).length) {
+                  let extraQuantity = x.quantity > Object.keys(x.styles[0]["tuxedo" + "_" + i]).length;
+                  for (let m = 1; m <= extraQuantity; m++) {
+                    let itemId = "tuxedo" + "_" + (i + m)
+                    arrayOneMore[itemId] = { "tuxedojacket": {}, "pant": {} }
+                  }
+                }
+                let itemId = "tuxedo" + "_" + i
+                arrayOneMore[itemId] = x.styles[0]["tuxedo" + "_" + i]
+              } else {
+                let itemId = "tuxedo" + "_" + i;
+                arrayOneMore[itemId] = {
+                  tuxedojacket: {},
+                  pant: {}
+                };
+              }
+
+              array.push(i);
+            }
+            const array1 = []
+
+
+            setTuxedostylesArray(arrayOneMore);
+            setTuxeodOrderQuantityArray(array);
 
           }
         }
@@ -730,13 +793,151 @@ export default function MissingFabric(props) {
         setNormalPantStyleCount(normalStylePQuantity)
         setNormalJacketStyleCount(normalStyleJQuantity)
 
+      } else if (props.data == "tuxedo") {
+        const res = await axiosInstance.post(
+          "/product/fetchByJacketName/" + "tuxedojacket",
+          {
+            token: user.data.token,
+          }
+        );
+
+        const res1 = await axiosInstance.post(
+          "/product/fetchByJacketName/" + "pant",
+          {
+            token: user.data.token,
+          }
+        );
+
+        setTuxedoJacket(res.data.data[0]);
+        setTuxedoPant(res1.data.data[0]);
+
+        let normalStyleJQuantity = 0;
+        for (let x of res.data.data[0]["features"]) {
+
+          if (x['additional'] == false) {
+            normalStyleJQuantity = normalStyleJQuantity + 1
+          }
+        }
+        const jarray = []
+        for (let x of res.data.data[0]['features']) {
+
+          if (x['additional'] == false) {
+            jarray.push(x['name'])
+          }
+          tuxedoFeaturesNameArray['tuxedojacket'] = jarray
+          setTuxedoFeaturesNameArray({ ...tuxedoFeaturesNameArray })
+          for (let styles of x['styles']) {
+            if (styles['style_options'].length > 0) {
+              if (tuxedoGroupFeaturesNamesArray['tuxedojacket']) {
+                if (!tuxedoGroupFeaturesNamesArray['tuxedojacket'].includes(x['name'])) {
+                  tuxedoGroupFeaturesNamesArray['tuxedojacket'].push(x['name'])
+                  setTuxedoGroupFeaturesNamesArray({ ...tuxedoGroupFeaturesNamesArray })
+                }
+              } else {
+                tuxedoGroupFeaturesNamesArray['tuxedojacket'] = [x['name']]
+              }
+            }
+          }
+          // if(optionsArray.length > 0 ){
+          //   const obj = {}
+          //   obj[x['name']] = optionsArray
+          //   suitGroupFeaturesNamesArray['jacket'] = obj 
+
+          //   for(let ord of props.orders){
+          //     for(let i=0; i < ord['quantity']; i++){
+          //       if(props.data == ord['item_name']){
+          //         if(isThereSuitGroupFeaturesObject[ord['item_name'] + "_" + i]){
+          //           if(isThereSuitGroupFeaturesObject[ord['item_name'] + "_" + i]['jacket']){
+          //             isThereSuitGroupFeaturesObject[ord['item_name'] + "_" + i]['jacket'][x['name']] = false
+          //           }else{
+          //             const obj = {}
+          //             obj[x['name']] = false
+          //             isThereSuitGroupFeaturesObject[ord['item_name'] + "_" + i]['jacket'] = obj
+          //           }
+          //         }else{
+          //           const justAnObject = {}
+          //           const oneMoreObj = {}
+          //           justAnObject[x['name']] = false
+          //           oneMoreObj['jacket'] = justAnObject
+          //           isThereSuitGroupFeaturesObject[ord['item_name'] + "_" + i] = oneMoreObj
+          //         }
+          //         setIsThereSuitGroupFeaturesObject({...isThereSuitGroupFeaturesObject})
+          //       }
+
+          //     }
+          //   }
+          //   setSuitGroupFeaturesNamesArray({...suitGroupFeaturesNamesArray})
+          // }
+        }
+        const parray = []
+        for (let x of res1.data.data[0]['features']) {
+
+          if (x['additional'] == false) {
+            parray.push(x['name'])
+          }
+          tuxedoFeaturesNameArray['pant'] = parray
+          setTuxedoFeaturesNameArray({ ...tuxedoFeaturesNameArray });
+          for (let styles of x['styles']) {
+            if (styles['style_options'].length > 0) {
+              if (tuxedoGroupFeaturesNamesArray['pant']) {
+                if (!tuxedoGroupFeaturesNamesArray['pant'].includes(x['name'])) {
+                  tuxedoGroupFeaturesNamesArray['pant'].push(x['name'])
+                  setTuxedoGroupFeaturesNamesArray({ ...tuxedoGroupFeaturesNamesArray })
+                }
+              } else {
+                tuxedoGroupFeaturesNamesArray['pant'] = [x['name']]
+              }
+            }
+          }
+          // if(optionsArray1.length > 0 ){
+          //   const obj = {}
+          //   obj[x['name']] = optionsArray1
+          //   suitGroupFeaturesNamesArray['pant'] = obj
+
+          //   for(let ord of props.orders){
+          //     for(let i=0; i < ord['quantity']; i++){
+          //       if(props.data == ord['item_name']){
+          //         if(isThereSuitGroupFeaturesObject[ord['item_name'] + "_" + i]){
+          //           if(isThereSuitGroupFeaturesObject[ord['item_name'] + "_" + i]['pant']){
+          //             isThereSuitGroupFeaturesObject[ord['item_name'] + "_" + i]['pant'][x['name']] = false
+          //           }else{
+          //             const obj = {}
+          //             obj[x['name']] = false
+          //             isThereSuitGroupFeaturesObject[ord['item_name'] + "_" + i]['pant'] = obj
+          //           }
+          //         }else{
+          //           const justAnObject = {}
+          //           const oneMoreObj = {}
+          //           justAnObject[x['name']] = false
+          //           oneMoreObj['pant'] = justAnObject
+          //           isThereSuitGroupFeaturesObject[ord['item_name'] + "_" + i] = oneMoreObj
+          //         }
+          //         setIsThereSuitGroupFeaturesObject({...isThereSuitGroupFeaturesObject})
+          //       }
+
+          //     }
+          //   }
+          //   setSuitGroupFeaturesNamesArray({...suitGroupFeaturesNamesArray})
+          // }
+        }
+
+        let normalStylePQuantity = 0;
+        for (let x of res1.data.data[0]["features"]) {
+
+          if (x['additional'] == false) {
+            normalStylePQuantity = normalStylePQuantity + 1
+          }
+        }
+        setNormalPantStyleCount(normalStylePQuantity)
+        setNormalTuxedoJacketStyleCount(normalStyleJQuantity)
+
       } else {
       }
     };
     fetchFeature();
   }, []);
-
-  console.log("suits style: ", SuitstylesArray)
+  console.log("suits group: ", suitGroupFeaturesNamesArray)
+  console.log("tux group: ", tuxedoGroupFeaturesNamesArray)
   const handleChange = (panel) => (event, newExpanded) => {
     setExpanded(newExpanded ? panel : false);
   };
@@ -821,7 +1022,53 @@ export default function MissingFabric(props) {
         }
 
         i = i + 1;
-      } else {
+      } else if (props.data == "tuxedo" && x.item_name == "tuxedo") {
+        let obj = {};
+        obj["styles"] = TuxedostylesArray;
+        x.quantity = Object.keys(TuxedostylesArray).length;
+        let newObject = { ...TuxedostyleObject, ...obj };
+        orderArray[i] = newObject;
+        const newObjectOfFeatures = {}
+        for (let pro of Object.keys(tuxedoFeaturesNameArray)) {
+
+          newObjectOfFeatures[pro] = tuxedoFeaturesNameArray[pro].filter((x) => {
+            if (tuxedoGroupFeaturesNamesArray[pro]) {
+              return !Object.keys(tuxedoGroupFeaturesNamesArray[pro]).includes(x)
+            } else {
+              return x
+            }
+          })
+        }
+        const ar3 = tuxedoFeaturesNameArray['tuxedojacket'].filter(x => !tuxedoGroupFeaturesNamesArray['tuxedojacket']?.includes(x))
+
+        // var canSubmitSuitsStyles = true
+        const objFNA = {}
+        objFNA['pant'] = tuxedoFeaturesNameArray['pant']
+        objFNA['tuxedojacket'] = ar3
+
+        for (let tuxedo of Object.keys(TuxedostylesArray)) {
+          for (let x of objFNA['tuxedojacket']) {
+            if (!TuxedostylesArray[tuxedo]['tuxedojacket']['style'] || !Object.keys(TuxedostylesArray[tuxedo]['tuxedojacket']['style']).includes(x)) {
+              canSubmitStyles = false
+            }
+          }
+          for (let x of objFNA['pant']) {
+            if (!TuxedostylesArray[tuxedo]['pant']['style'] || !Object.keys(TuxedostylesArray[tuxedo]['pant']['style']).includes(x)) {
+              canSubmitStyles = false
+            }
+          }
+
+          if(tuxedoGroupFeaturesNamesArray['tuxedojacket']){
+            for (let x of tuxedoGroupFeaturesNamesArray['tuxedojacket']) {
+              if (!TuxedostylesArray[tuxedo]['tuxedojacket']['groupStyle'] || !Object.keys(TuxedostylesArray[tuxedo]['tuxedojacket']['groupStyle']).includes(x)) {
+                canSubmitStyles = false
+              }
+            }
+          }
+        }
+
+        i = i + 1;
+      }else {
         if (x.item_name == product["name"]) {
 
           let stylesObjects = {};
@@ -959,33 +1206,44 @@ export default function MissingFabric(props) {
     props.setOrders([...props.orders]);
   };
 
-  const handleShirtMonogram = (e, index) =>{
-    if(e.target.checked){
+  const handleShirtMonogram = (e, index) => {
+    if (e.target.checked) {
       showMonogram[index] = true
-      setShowMonogram({...showMonogram})
-    }else{
+      setShowMonogram({ ...showMonogram })
+    } else {
       showMonogram[index] = false
-      setShowMonogram({...showMonogram})
+      setShowMonogram({ ...showMonogram })
     }
   }
 
   const handleShowAdditionalStyles = (e, index) => {
-    if(e.target.checked){
+    if (e.target.checked) {
       showAdditionalStyles[index] = true
-      setShowAdditionalStyles({...showAdditionalStyles})
-    }else{
+      setShowAdditionalStyles({ ...showAdditionalStyles })
+    } else {
       showAdditionalStyles[index] = false
-      setShowAdditionalStyles({...showAdditionalStyles})
+      setShowAdditionalStyles({ ...showAdditionalStyles })
     }
   }
 
   const handleShowSuitAdditionalStyles = (e, index, pr) => {
-    if(e.target.checked){
+    if (e.target.checked) {
       showSuitAdditionalStyles[pr + "_" + index] = true
-      setShowSuitAdditionalStyles({...showSuitAdditionalStyles})
-    }else{
+      setShowSuitAdditionalStyles({ ...showSuitAdditionalStyles })
+    } else {
       showSuitAdditionalStyles[pr + "_" + index] = false
-      setShowSuitAdditionalStyles({...showSuitAdditionalStyles})
+      setShowSuitAdditionalStyles({ ...showSuitAdditionalStyles })
+    }
+  }
+
+
+  const handleShowTuxedoAdditionalStyles = (e, index, pr) => {
+    if (e.target.checked) {
+      showTuxedoAdditionalStyles[pr + "_" + index] = true
+      setShowTuxedoAdditionalStyles({ ...showTuxedoAdditionalStyles })
+    } else {
+      showTuxedoAdditionalStyles[pr + "_" + index] = false
+      setShowTuxedoAdditionalStyles({ ...showTuxedoAdditionalStyles })
     }
   }
 
@@ -1119,6 +1377,136 @@ export default function MissingFabric(props) {
 
   // handle image upload----------------------------
 
+  //------------------- tuxedo style handle ----------------- //
+
+  const handleTuxedoStyleDeleteThisItem = (e, i) => {
+    let oldStylesObject = TuxedostylesArray;
+    delete oldStylesObject["tuxedo" + "_" + i];
+
+    let newStylesObject = {};
+    let m = 0;
+    for (let x of Object.keys(oldStylesObject)) {
+      newStylesObject["tuxedo" + "_" + m] = oldStylesObject[x];
+
+      m = m + 1;
+    }
+    tuxeodOrderQuantityArray.pop();
+    setTuxedostylesArray({ ...newStylesObject });
+    props.setJacketCount(props.jacketCount - 1);
+    props.setTotalQuantity(props.jacketCount - 1);
+    props.setOrders([...props.orders]);
+  };
+
+  const handleTuxedoChangeInput = (event, i) => {
+
+    const itemNameID = "tuxedo" + "_" + i;
+
+    if (event.target.dataset.for == "monogram") {
+      if (TuxedostylesArray[itemNameID]["tuxedojacket"]["monogram"]) {
+        TuxedostylesArray[itemNameID]["tuxedojacket"]["monogram"][event.target.name] =
+          event.target.value;
+        setTuxedostylesArray({ ...TuxedostylesArray });
+      } else {
+        const object = {};
+        object[event.target.name] = event.target.value;
+        TuxedostylesArray[itemNameID]["tuxedojacket"]["monogram"] = object;
+        setTuxedostylesArray({ ...TuxedostylesArray });
+      }
+    } else {
+      TuxedostylesArray[itemNameID]["tuxedojacket"][event.target.name] = event.target.value;
+      setTuxedostylesArray({ ...TuxedostylesArray });
+    }
+  };
+
+  const handleTuxedoPipingInput = (e, i) => {
+    const itemNameID = "tuxedo" + "_" + i;
+    const name = e.target.name.split("_")[0];
+    TuxedostylesArray[itemNameID]["tuxedojacket"][name] = e.target.value;
+    setTuxedostylesArray({ ...TuxedostylesArray });
+  };
+
+  const handleTuxedoFabricNoteInput = (e, i) => {
+    const itemNameID = "tuxedo" + "_" + i;
+    const name = e.target.name;
+    TuxedostylesArray[itemNameID][name] = e.target.value;
+    setTuxedostylesArray({ ...TuxedostylesArray });
+  };
+
+  const handleTuxedoFabricInput = (e, i) => {
+    const itemNameID = "tuxedo" + "_" + i;
+    const name = e.target.name;
+    TuxedostylesArray[itemNameID][name] = e.target.value;
+    setTuxedostylesArray({ ...TuxedostylesArray });
+  };
+
+  const handleTuxedoMonogramSideChange = (e, i) => {
+    const itemNameID = "suit" + "_" + i;
+    const name = e.target.name.split("_")[0];
+    if (e.target.dataset.for == "monogram") {
+      if (SuitstylesArray[itemNameID]["jacket"]["monogram"]) {
+        SuitstylesArray[itemNameID]["jacket"]["monogram"][name] =
+          e.target.value;
+        setSuitstylesArray({ ...SuitstylesArray });
+      } else {
+        const object = {};
+        object[name] = e.target.value;
+        SuitstylesArray[itemNameID]["jacket"]["monogram"] = object;
+        setSuitstylesArray({ ...SuitstylesArray });
+      }
+    }
+  };
+
+  const handleTuxedoMonogramFontstyleChange = (e, i) => {
+    const itemNameID = "tuxedo" + "_" + i;
+    const name = e.target.name.split("_")[0];
+    if (e.target.dataset.for == "monogram") {
+      if (TuxedostylesArray[itemNameID]["tuxedojacket"]["monogram"]) {
+        TuxedostylesArray[itemNameID]["tuxedojacket"]["monogram"][name] =
+          e.target.value;
+        setTuxedostylesArray({ ...TuxedostylesArray });
+      } else {
+        const object = {};
+        object[name] = e.target.value;
+        TuxedostylesArray[itemNameID]["tuxedojacket"]["monogram"] = object;
+        setTuxedostylesArray({ ...TuxedostylesArray });
+      }
+    }
+  };
+
+  const handleTuxedoMonogramColorChange = (e, i) => {
+    const itemNameID = "tuxedo" + "_" + i;
+    const name = e.target.name.split("_")[0];
+    if (e.target.dataset.for == "monogram") {
+      if (TuxedostylesArray[itemNameID]["tuxedojacket"]["monogram"]) {
+        TuxedostylesArray[itemNameID]["tuxedojacket"]["monogram"][name] =
+          e.target.value;
+        setTuxedostylesArray({ ...TuxedostylesArray });
+      } else {
+        const object = {};
+        object[name] = e.target.value;
+        TuxedostylesArray[itemNameID]["tuxedojacket"]["monogram"] = object;
+        setTuxedostylesArray({ ...TuxedostylesArray });
+      }
+    }
+  };
+
+  const handleTuxedoCopyStyleData = (e, i) => {
+    if (e.target.checked) {
+      const itemIDcurrent = "tuxedo" + "_" + i;
+      const itemIDprevious = "tuxedo" + "_" + (i - 1);
+
+      const newObject = JSON.parse(JSON.stringify(TuxedostylesArray[itemIDprevious]));
+      TuxedostylesArray[itemIDcurrent] = newObject
+      setTuxedostylesArray({ ...TuxedostylesArray });
+    } else {
+      const itemIDcurrent = "suit" + "_" + i;
+      TuxedostylesArray[itemIDcurrent] = {};
+      setTuxedostylesArray({ ...TuxedostylesArray });
+    }
+  };
+
+  // handle image upload----------------------------
+
   const handleImageUpload = async (e, i) => {
     const itemNameID = product.name + "_" + i;
     if (imageData) {
@@ -1133,7 +1521,7 @@ export default function MissingFabric(props) {
   // handleImage upload for suits
 
   const handleImageUploadSuit = async (e, i) => {
-    const itemNameID =  "suit_" + i;
+    const itemNameID = "suit_" + i;
     if (imageDataSuit) {
       const data = new FormData();
       data.append("image", imageDataSuit);
@@ -1159,7 +1547,34 @@ export default function MissingFabric(props) {
     // }
   }
   //------------------- END ----------------- //
+  // handleImage upload for Tuxedo
 
+  const handleImageUploadTuxedo = async (e, i) => {
+    const itemNameID = "tuxedo" + i;
+    if (imageDataTuxedo) {
+      const data = new FormData();
+      data.append("image", imageDataTuxedo);
+      const res = await axiosInstance.post("image/upload", data)
+      setImageDataTuxedo(null)
+      TuxedostylesArray[itemNameID]['referance_image'] = res.data.data
+      // stylesArray[itemNameID]['referance_image'] = `${res.data.data.split("/")[1]}.png`
+    }
+    // if (imageDataJacket) {
+    //   const data = new FormData();
+    //   data.append("image", imageDataJacket);
+    //   const res = await axiosInstance.post("image/upload", data)
+    //   setImageDataJacket(null)
+    //   SuitstylesArray[itemNameID]['jacket']['referance_image'] = `${res.data.data.split("/")[1]}.png`
+    //   // stylesArray[itemNameID]['referance_image'] = `${res.data.data.split("/")[1]}.png`
+    // }
+    // if (imageDataPant) {
+    //   const data = new FormData();
+    //   data.append("image", imageDataPant);
+    //   const res = await axiosInstance.post("image/upload", data)
+    //   setImageDataPant(null)
+    //   SuitstylesArray[itemNameID]['pant']['referance_image'] = `${res.data.data.split("/")[1]}.png`
+    // }
+  }
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -1279,69 +1694,69 @@ export default function MissingFabric(props) {
                         <hr></hr>
                         {product["name"] == "pant" ? (
                           <></>
-                        ) : product["name"] == "shirt"  ? (
+                        ) : product["name"] == "shirt" ? (
                           <>
-                          
-                          
-                            <div className="title-fabrics" style={{display:'flex', flexDirection: 'row'}}>
+
+
+                            <div className="title-fabrics" style={{ display: 'flex', flexDirection: 'row' }}>
                               {" "}
                               <div><h3> Monogram </h3></div>
                               {" "}
-                              <div style={{display:'flex', alignItems: 'center', marginLeft: "auto"}}>
-                              <label for="skipMonogram"><strong>Skip Monogram</strong></label>
-                              <input type="checkbox" id="skipMonogram" checked={showMonogram[i]} onChange={(e) => handleShirtMonogram(e, i)} />
+                              <div style={{ display: 'flex', alignItems: 'center', marginLeft: "auto" }}>
+                                <label for="skipMonogram"><strong>Skip Monogram</strong></label>
+                                <input type="checkbox" id="skipMonogram" checked={showMonogram[i]} onChange={(e) => handleShirtMonogram(e, i)} />
                               </div>
                             </div>
-                            
-                              {!showMonogram[i] ? 
+
+                            {!showMonogram[i] ?
                               <>
-                               <div className="form-group monogram-info">
-                              {/* <p> Monogram </p> */}
-                              <input
-                                type="text"
-                                className="searchinput"
-                                placeholder="Tag"
-                                name="tag"
-                                value={
-                                  stylesArray[product.name + "_" + i].monogram
-                                    ? stylesArray[product.name + "_" + i]
-                                      .monogram.tag
-                                    : ""
-                                }
-                                data-for="monogram"
-                                onChange={(event) =>
-                                  handleChangeInput(event, i)
-                                }
-                              ></input>
-                            </div>
-                            <div className="form-group monogram-info">
-                              <p> Monogram Position </p>
-                              <ul>
-                                <li>
+                                <div className="form-group monogram-info">
+                                  {/* <p> Monogram </p> */}
                                   <input
-                                    type="radio"
-                                    name={"side" + "_" + i}
+                                    type="text"
+                                    className="searchinput"
+                                    placeholder="Tag"
+                                    name="tag"
+                                    value={
+                                      stylesArray[product.name + "_" + i].monogram
+                                        ? stylesArray[product.name + "_" + i]
+                                          .monogram.tag
+                                        : ""
+                                    }
                                     data-for="monogram"
-                                    data-newname="side"
-                                    value="left side"
-                                    id={"myCheckbox0a1" + "_" + i}
-                                    checked={
-                                      stylesArray[product.name + "_" + i]
-                                        .monogram &&
-                                        stylesArray[product.name + "_" + i]
-                                          .monogram["side"] == "left side"
-                                        ? true
-                                        : false
-                                    }
                                     onChange={(event) =>
-                                      handleMonogramSideChange(event, i)
+                                      handleChangeInput(event, i)
                                     }
-                                  />
-                                  <label for={"myCheckbox0a1" + "_" + i}>
-                                    <h5> Left Side </h5>
-                                  </label>
-                                </li>
-                                {/* <li>
+                                  ></input>
+                                </div>
+                                <div className="form-group monogram-info">
+                                  <p> Monogram Position </p>
+                                  <ul>
+                                    <li>
+                                      <input
+                                        type="radio"
+                                        name={"side" + "_" + i}
+                                        data-for="monogram"
+                                        data-newname="side"
+                                        value="left side"
+                                        id={"myCheckbox0a1" + "_" + i}
+                                        checked={
+                                          stylesArray[product.name + "_" + i]
+                                            .monogram &&
+                                            stylesArray[product.name + "_" + i]
+                                              .monogram["side"] == "left side"
+                                            ? true
+                                            : false
+                                        }
+                                        onChange={(event) =>
+                                          handleMonogramSideChange(event, i)
+                                        }
+                                      />
+                                      <label for={"myCheckbox0a1" + "_" + i}>
+                                        <h5> Left Side </h5>
+                                      </label>
+                                    </li>
+                                    {/* <li>
                                   <input
                                     type="radio"
                                     name={"side" + "_" + i}
@@ -1365,120 +1780,120 @@ export default function MissingFabric(props) {
                                     <h5> Right Side </h5>
                                   </label>
                                 </li> */}
-                              </ul>
-                            </div>
-                            <div className="form-group monogram-foont-style">
-                              <p> Monogram Font Style </p>
-                              <ul>
-                                {fontStyle.map((fontStyles, key) => {
-                                  return (
-                                    <li key={key}>
-                                      <input
-                                        type="radio"
-                                        name={"font_style_" + i}
-                                        checked={
-                                          stylesArray[product.name + "_" + i]
-                                            .monogram &&
-                                            stylesArray[product.name + "_" + i]
-                                              .monogram.font ==
-                                            fontStyles.styleName
-                                            ? true
-                                            : false
-                                        }
-                                        data-for="monogram"
-                                        value={fontStyles.styleName}
-                                        id={
-                                          "myCheckboxb" +
-                                          fontStyles.styleName +
-                                          "_" +
-                                          i
-                                        }
-                                        onChange={(event) =>
-                                          handleMonogramFontstyleChange(
-                                            event,
-                                            i
-                                          )
-                                        }
-                                      />
-                                      <label
-                                        for={
-                                          "myCheckboxb" +
-                                          fontStyles.styleName +
-                                          "_" +
-                                          i
-                                        }
-                                      >
-                                        <img
-                                          src={fontStyles.image}
-                                          alt="Monogram Font Style"
-                                        />
-                                        <p> {fontStyles.styleName} </p>
-                                      </label>
-                                    </li>
-                                  );
-                                })}
-                              </ul>
-                            </div>
-                            <div className="form-group colored-style-boX">
-                              <p> Monogram Color </p>
-                              {colorData !== null && colorData.length > 0 ? (
-                                <ul
-                                  style={{
-                                    display: "block",
-                                    overflowY: "auto",
-                                    height: "400px",
-                                  }}
-                                >
-                                  {colorData.map((data, key) => (
-                                    <li key={key}>
-                                      <input
-                                        type="radio"
-                                        className="radio"
-                                        name={"color" + "_" + i}
-                                        data-for="monogram"
-                                        style={{ display: "none" }}
-                                        id={data.id + "_" + i}
-                                        checked={
-                                          stylesArray[product.name + "_" + i]
-                                            .monogram &&
-                                            stylesArray[product.name + "_" + i]
-                                              .monogram["color"] == data.value
-                                            ? true
-                                            : false
-                                        }
-                                        value={data.value}
-                                        onChange={(event) =>
-                                          handleMonogramColorChange(event, i)
-                                        }
-                                        defaultChecked={false}
-                                      />
-                                      <label for={data.id + "_" + i}>
-                                        <div
-                                          className="colored-boxes"
-                                          style={{
-                                            backgroundColor: `${data.color}`,
-                                          }}
-                                        ></div>{" "}
-                                        <p> {data.value} </p>
-                                      </label>
-                                    </li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <>
-                                  <p>No data found</p>
-                                </>
-                              )}
-                            </div></>
-                              : 
+                                  </ul>
+                                </div>
+                                <div className="form-group monogram-foont-style">
+                                  <p> Monogram Font Style </p>
+                                  <ul>
+                                    {fontStyle.map((fontStyles, key) => {
+                                      return (
+                                        <li key={key}>
+                                          <input
+                                            type="radio"
+                                            name={"font_style_" + i}
+                                            checked={
+                                              stylesArray[product.name + "_" + i]
+                                                .monogram &&
+                                                stylesArray[product.name + "_" + i]
+                                                  .monogram.font ==
+                                                fontStyles.styleName
+                                                ? true
+                                                : false
+                                            }
+                                            data-for="monogram"
+                                            value={fontStyles.styleName}
+                                            id={
+                                              "myCheckboxb" +
+                                              fontStyles.styleName +
+                                              "_" +
+                                              i
+                                            }
+                                            onChange={(event) =>
+                                              handleMonogramFontstyleChange(
+                                                event,
+                                                i
+                                              )
+                                            }
+                                          />
+                                          <label
+                                            for={
+                                              "myCheckboxb" +
+                                              fontStyles.styleName +
+                                              "_" +
+                                              i
+                                            }
+                                          >
+                                            <img
+                                              src={fontStyles.image}
+                                              alt="Monogram Font Style"
+                                            />
+                                            <p> {fontStyles.styleName} </p>
+                                          </label>
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                </div>
+                                <div className="form-group colored-style-boX">
+                                  <p> Monogram Color </p>
+                                  {colorData !== null && colorData.length > 0 ? (
+                                    <ul
+                                      style={{
+                                        display: "block",
+                                        overflowY: "auto",
+                                        height: "400px",
+                                      }}
+                                    >
+                                      {colorData.map((data, key) => (
+                                        <li key={key}>
+                                          <input
+                                            type="radio"
+                                            className="radio"
+                                            name={"color" + "_" + i}
+                                            data-for="monogram"
+                                            style={{ display: "none" }}
+                                            id={data.id + "_" + i}
+                                            checked={
+                                              stylesArray[product.name + "_" + i]
+                                                .monogram &&
+                                                stylesArray[product.name + "_" + i]
+                                                  .monogram["color"] == data.value
+                                                ? true
+                                                : false
+                                            }
+                                            value={data.value}
+                                            onChange={(event) =>
+                                              handleMonogramColorChange(event, i)
+                                            }
+                                            defaultChecked={false}
+                                          />
+                                          <label for={data.id + "_" + i}>
+                                            <div
+                                              className="colored-boxes"
+                                              style={{
+                                                backgroundColor: `${data.color}`,
+                                              }}
+                                            ></div>{" "}
+                                            <p> {data.value} </p>
+                                          </label>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  ) : (
+                                    <>
+                                      <p>No data found</p>
+                                    </>
+                                  )}
+                                </div></>
+                              :
                               <></>
-                              
-                              }
-                           
+
+                            }
+
 
                             <hr></hr>
                           </>
-                        ): product["name"] == "jacket"  ?(
+                        ) : product["name"] == "jacket" ? (
                           <>
                             <div className="title-fabrics">
                               <h3> Lining </h3>
@@ -1694,7 +2109,7 @@ export default function MissingFabric(props) {
                                 </>
                               )}
                             </div>
-                            
+
 
                             <hr></hr>
                           </>
@@ -1789,191 +2204,191 @@ export default function MissingFabric(props) {
                             </div>
                             <hr></hr>
                             {product['name'] !== 'vest'
-                            ?
-                            <>
-                            <div className="title-fabrics">
-                              {" "}
-                              <h3> Monogram </h3>{" "}
-                            </div>
-                            <div className="form-group monogram-info">
-                              {/* <p> Monogram </p> */}
-                              <input
-                                type="text"
-                                className="searchinput"
-                                placeholder="Tag"
-                                name="tag"
-                                value={
-                                  stylesArray[product.name + "_" + i].monogram
-                                    ? stylesArray[product.name + "_" + i]
-                                      .monogram.tag
-                                    : ""
-                                }
-                                data-for="monogram"
-                                onChange={(event) =>
-                                  handleChangeInput(event, i)
-                                }
-                              ></input>
-                            </div>
-                            <div className="form-group monogram-info">
-                              <p> Monogram Position </p>
-                              <ul>
-                                <li>
+                              ?
+                              <>
+                                <div className="title-fabrics">
+                                  {" "}
+                                  <h3> Monogram </h3>{" "}
+                                </div>
+                                <div className="form-group monogram-info">
+                                  {/* <p> Monogram </p> */}
                                   <input
-                                    type="radio"
-                                    name={"side" + "_" + i}
+                                    type="text"
+                                    className="searchinput"
+                                    placeholder="Tag"
+                                    name="tag"
+                                    value={
+                                      stylesArray[product.name + "_" + i].monogram
+                                        ? stylesArray[product.name + "_" + i]
+                                          .monogram.tag
+                                        : ""
+                                    }
                                     data-for="monogram"
-                                    data-newname="side"
-                                    value="left side"
-                                    id={"myCheckbox0a1" + "_" + i}
-                                    checked={
-                                      stylesArray[product.name + "_" + i]
-                                        .monogram &&
-                                        stylesArray[product.name + "_" + i]
-                                          .monogram["side"] == "left side"
-                                        ? true
-                                        : false
-                                    }
                                     onChange={(event) =>
-                                      handleMonogramSideChange(event, i)
+                                      handleChangeInput(event, i)
                                     }
-                                  />
-                                  <label for={"myCheckbox0a1" + "_" + i}>
-                                    <h5> Left Side </h5>
-                                  </label>
-                                </li>
-                                <li>
-                                  <input
-                                    type="radio"
-                                    name={"side" + "_" + i}
-                                    data-for="monogram"
-                                    data-newname="side"
-                                    value="right side"
-                                    checked={
-                                      stylesArray[product.name + "_" + i]
-                                        .monogram &&
-                                        stylesArray[product.name + "_" + i]
-                                          .monogram["side"] == "right side"
-                                        ? true
-                                        : false
-                                    }
-                                    id={"myCheckbox0a2" + "_" + i}
-                                    onChange={(event) =>
-                                      handleMonogramSideChange(event, i)
-                                    }
-                                  />
-                                  <label for={"myCheckbox0a2" + "_" + i}>
-                                    <h5> Right Side </h5>
-                                  </label>
-                                </li>
-                              </ul>
-                            </div>
-                            <div className="form-group monogram-foont-style">
-                              <p> Monogram Font Style </p>
-                              <ul>
-                                {fontStyle.map((fontStyles, key) => {
-                                  return (
-                                    <li key={key}>
+                                  ></input>
+                                </div>
+                                <div className="form-group monogram-info">
+                                  <p> Monogram Position </p>
+                                  <ul>
+                                    <li>
                                       <input
                                         type="radio"
-                                        name={"font_style_" + i}
+                                        name={"side" + "_" + i}
+                                        data-for="monogram"
+                                        data-newname="side"
+                                        value="left side"
+                                        id={"myCheckbox0a1" + "_" + i}
                                         checked={
                                           stylesArray[product.name + "_" + i]
                                             .monogram &&
                                             stylesArray[product.name + "_" + i]
-                                              .monogram.font ==
-                                            fontStyles.styleName
+                                              .monogram["side"] == "left side"
                                             ? true
                                             : false
                                         }
-                                        data-for="monogram"
-                                        value={fontStyles.styleName}
-                                        id={
-                                          "myCheckboxb" +
-                                          fontStyles.styleName +
-                                          "_" +
-                                          i
-                                        }
                                         onChange={(event) =>
-                                          handleMonogramFontstyleChange(
-                                            event,
-                                            i
-                                          )
+                                          handleMonogramSideChange(event, i)
                                         }
                                       />
-                                      <label
-                                        for={
-                                          "myCheckboxb" +
-                                          fontStyles.styleName +
-                                          "_" +
-                                          i
-                                        }
-                                      >
-                                        <img
-                                          src={fontStyles.image}
-                                          alt="Monogram Font Style"
-                                        />
-                                        <p> {fontStyles.styleName} </p>
+                                      <label for={"myCheckbox0a1" + "_" + i}>
+                                        <h5> Left Side </h5>
                                       </label>
                                     </li>
-                                  );
-                                })}
-                              </ul>
-                            </div>
-                            <div className="form-group colored-style-boX">
-                              <p> Monogram Color </p>
-                              {colorData !== null && colorData.length > 0 ? (
-                                <ul
-                                  style={{
-                                    display: "block",
-                                    overflowY: "auto",
-                                    height: "400px",
-                                  }}
-                                >
-                                  {colorData.map((data, key) => (
-                                    <li key={key}>
+                                    <li>
                                       <input
                                         type="radio"
-                                        className="radio"
-                                        name={"color" + "_" + i}
+                                        name={"side" + "_" + i}
                                         data-for="monogram"
-                                        style={{ display: "none" }}
-                                        id={data.id + "_" + i}
+                                        data-newname="side"
+                                        value="right side"
                                         checked={
                                           stylesArray[product.name + "_" + i]
                                             .monogram &&
                                             stylesArray[product.name + "_" + i]
-                                              .monogram["color"] == data.value
+                                              .monogram["side"] == "right side"
                                             ? true
                                             : false
                                         }
-                                        value={data.value}
+                                        id={"myCheckbox0a2" + "_" + i}
                                         onChange={(event) =>
-                                          handleMonogramColorChange(event, i)
+                                          handleMonogramSideChange(event, i)
                                         }
-                                        defaultChecked={false}
                                       />
-                                      <label for={data.id + "_" + i}>
-                                        <div
-                                          className="colored-boxes"
-                                          style={{
-                                            backgroundColor: `${data.color}`,
-                                          }}
-                                        ></div>{" "}
-                                        <p> {data.value} </p>
+                                      <label for={"myCheckbox0a2" + "_" + i}>
+                                        <h5> Right Side </h5>
                                       </label>
                                     </li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <>
-                                  <p>No data found</p>
-                                </>
-                              )}
-                            </div>
-                            </>
-                            :
-                            <></>}
-                            
+                                  </ul>
+                                </div>
+                                <div className="form-group monogram-foont-style">
+                                  <p> Monogram Font Style </p>
+                                  <ul>
+                                    {fontStyle.map((fontStyles, key) => {
+                                      return (
+                                        <li key={key}>
+                                          <input
+                                            type="radio"
+                                            name={"font_style_" + i}
+                                            checked={
+                                              stylesArray[product.name + "_" + i]
+                                                .monogram &&
+                                                stylesArray[product.name + "_" + i]
+                                                  .monogram.font ==
+                                                fontStyles.styleName
+                                                ? true
+                                                : false
+                                            }
+                                            data-for="monogram"
+                                            value={fontStyles.styleName}
+                                            id={
+                                              "myCheckboxb" +
+                                              fontStyles.styleName +
+                                              "_" +
+                                              i
+                                            }
+                                            onChange={(event) =>
+                                              handleMonogramFontstyleChange(
+                                                event,
+                                                i
+                                              )
+                                            }
+                                          />
+                                          <label
+                                            for={
+                                              "myCheckboxb" +
+                                              fontStyles.styleName +
+                                              "_" +
+                                              i
+                                            }
+                                          >
+                                            <img
+                                              src={fontStyles.image}
+                                              alt="Monogram Font Style"
+                                            />
+                                            <p> {fontStyles.styleName} </p>
+                                          </label>
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                </div>
+                                <div className="form-group colored-style-boX">
+                                  <p> Monogram Color </p>
+                                  {colorData !== null && colorData.length > 0 ? (
+                                    <ul
+                                      style={{
+                                        display: "block",
+                                        overflowY: "auto",
+                                        height: "400px",
+                                      }}
+                                    >
+                                      {colorData.map((data, key) => (
+                                        <li key={key}>
+                                          <input
+                                            type="radio"
+                                            className="radio"
+                                            name={"color" + "_" + i}
+                                            data-for="monogram"
+                                            style={{ display: "none" }}
+                                            id={data.id + "_" + i}
+                                            checked={
+                                              stylesArray[product.name + "_" + i]
+                                                .monogram &&
+                                                stylesArray[product.name + "_" + i]
+                                                  .monogram["color"] == data.value
+                                                ? true
+                                                : false
+                                            }
+                                            value={data.value}
+                                            onChange={(event) =>
+                                              handleMonogramColorChange(event, i)
+                                            }
+                                            defaultChecked={false}
+                                          />
+                                          <label for={data.id + "_" + i}>
+                                            <div
+                                              className="colored-boxes"
+                                              style={{
+                                                backgroundColor: `${data.color}`,
+                                              }}
+                                            ></div>{" "}
+                                            <p> {data.value} </p>
+                                          </label>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  ) : (
+                                    <>
+                                      <p>No data found</p>
+                                    </>
+                                  )}
+                                </div>
+                              </>
+                              :
+                              <></>}
+
 
                             <hr></hr>
                           </>
@@ -2000,10 +2415,10 @@ export default function MissingFabric(props) {
 
                         <div className="title-fabrics">
                           <h3>Additional styles</h3>
-                           <div style={{display:'flex', alignItems: 'center', marginLeft: "auto"}}>
-                              <label for={i}><strong>Show Additional styles</strong></label>
-                              <input type="checkbox" id={i} checked={showAdditionalStyles[i]} onChange={(e) => handleShowAdditionalStyles(e, i)} />
-                            </div>
+                          <div style={{ display: 'flex', alignItems: 'center', marginLeft: "auto" }}>
+                            <label for={i}><strong>Show Additional styles</strong></label>
+                            <input type="checkbox" id={i} checked={showAdditionalStyles[i]} onChange={(e) => handleShowAdditionalStyles(e, i)} />
+                          </div>
                         </div>
                         <div className="title-fabrics">
 
@@ -2044,7 +2459,7 @@ export default function MissingFabric(props) {
                           // id={feature._id}
                           ></textarea>
                         </div>
-                        
+
                         <div className="form-group ">
                           <div className="title-fabrics">
                             <h3> Reference Image </h3>
@@ -2383,7 +2798,7 @@ export default function MissingFabric(props) {
                         <div className="fabric-left  pl_15">
                           <form>
                             {/* <div style={{display: "flex", flexDirection:"row", justifyContent:"space-around"}}> */}
-                           
+
                             {/* 
                               <div className="form-group ">
                                 <div className="title-fabrics">
@@ -2785,24 +3200,24 @@ export default function MissingFabric(props) {
 
                                 <div className="title-fabrics">
                                   <h3>Additional Styles </h3>
-                                  <div style={{display:'flex', alignItems: 'center', marginLeft: "auto"}}>
+                                  <div style={{ display: 'flex', alignItems: 'center', marginLeft: "auto" }}>
                                     <label for={"jacket_" + i}><strong>Show Jacket Additional styles</strong></label>
                                     <input type="checkbox" id={"jacket_" + i} checked={showSuitAdditionalStyles['jacket' + "_" + i]} onChange={(e) => handleShowSuitAdditionalStyles(e, i, 'jacket')} />
                                   </div>
                                 </div>
                                 {showSuitAdditionalStyles['jacket' + "_" + i]
-                                ?
-                                <SuitAdditionalStyles
-                                  featuresStyle={SuitJacket['features']}
-                                  SuitstylesArray={SuitstylesArray}
-                                  setSuitstylesArray={setSuitstylesArray}
-                                  product="jacket"
-                                  productIndex={i}
-                                  normalCount={normalJacketStyleCount}>
+                                  ?
+                                  <SuitAdditionalStyles
+                                    featuresStyle={SuitJacket['features']}
+                                    SuitstylesArray={SuitstylesArray}
+                                    setSuitstylesArray={setSuitstylesArray}
+                                    product="jacket"
+                                    productIndex={i}
+                                    normalCount={normalJacketStyleCount}>
 
-                                </SuitAdditionalStyles>
-                                :
-                                <></>
+                                  </SuitAdditionalStyles>
+                                  :
+                                  <></>
                                 }
                               </>
 
@@ -2833,32 +3248,32 @@ export default function MissingFabric(props) {
 
                                 <div className="title-fabrics">
                                   <h3>Additional Styles </h3>
-                                  <div style={{display:'flex', alignItems: 'center', marginLeft: "auto"}}>
+                                  <div style={{ display: 'flex', alignItems: 'center', marginLeft: "auto" }}>
                                     <label for={"pant_" + i}><strong>Show Pant Additional styles</strong></label>
                                     <input type="checkbox" id={"pant_" + i} checked={showSuitAdditionalStyles['pant' + "_" + i]} onChange={(e) => handleShowSuitAdditionalStyles(e, i, 'pant')} />
                                   </div>
                                 </div>
                                 {showSuitAdditionalStyles['pant' + "_" + i]
-                                ?
-                                <SuitAdditionalStyles
-                                  featuresStyle={SuitPant['features']}
-                                  SuitstylesArray={SuitstylesArray}
-                                  setSuitstylesArray={setSuitstylesArray}
-                                  product="pant"
-                                  productIndex={i}
-                                  normalCount={normalPantStyleCount}>
+                                  ?
+                                  <SuitAdditionalStyles
+                                    featuresStyle={SuitPant['features']}
+                                    SuitstylesArray={SuitstylesArray}
+                                    setSuitstylesArray={setSuitstylesArray}
+                                    product="pant"
+                                    productIndex={i}
+                                    normalCount={normalPantStyleCount}>
 
-                                </SuitAdditionalStyles>
-                                :
-                            <></>
-                            }
+                                  </SuitAdditionalStyles>
+                                  :
+                                  <></>
+                                }
                               </>
 
                             ) : (
                               <></>
                             )}
 
-                            
+
                             <div className="form-group pd-top-15p">
                               <label>
                                 {" "}
@@ -2909,7 +3324,6 @@ export default function MissingFabric(props) {
 
                               <input type="file" name='image' id="fileInput" className="inputfile-button" style={{ display: 'none' }} onChange={(e) => setImageDataSuit(e.target.files[0])} />
                               <Button onClick={(e) => handleImageUploadSuit(e, i)}>Upload</Button>
-                              {/* <Button onClick={(e) => handleImageUploadSuit(e, i)}>Upload</Button> */}
                             </div>
                           </form>
                         </div>
@@ -2938,7 +3352,7 @@ export default function MissingFabric(props) {
                                       <span className="blue_text">
                                         {SuitstylesArray["suit" + "_" + i]["referance_image"]
                                           ?
-                                          <img width="50" height="50" src={PicBaseUrl +SuitstylesArray["suit" + "_" + i]["referance_image"]}></img>
+                                          <img width="50" height="50" src={PicBaseUrl + SuitstylesArray["suit" + "_" + i]["referance_image"]}></img>
                                           : "NA"}
                                       </span>
                                     </div>
@@ -3081,14 +3495,14 @@ export default function MissingFabric(props) {
                                                 //   ?
 
 
-                                                  SuitstylesArray[
-                                                  "suit_" + i
-                                                  ]['jacket']["groupStyle"][styles]['value']
+                                                SuitstylesArray[
+                                                "suit_" + i
+                                                ]['jacket']["groupStyle"][styles]['value']
 
 
 
-                                                  // :
-                                                  // ""
+                                                // :
+                                                // ""
                                               }
 
                                             </span>
@@ -3162,13 +3576,13 @@ export default function MissingFabric(props) {
                                                 //   ?
 
 
-                                                  SuitstylesArray[
-                                                  "suit_" + i
-                                                  ]['pant']["groupStyle"][styles]['value']
+                                                SuitstylesArray[
+                                                "suit_" + i
+                                                ]['pant']["groupStyle"][styles]['value']
 
 
-                                                  // :
-                                                  // ""
+                                                // :
+                                                // ""
                                               }
 
                                             </span>
@@ -3220,6 +3634,883 @@ export default function MissingFabric(props) {
           <></>
         )}
 
+        {props.data == "tuxedo" ? (
+          <>
+            {tuxeodOrderQuantityArray.map((quantities, i) => {
+              return (
+                <>
+                  <button
+                    data-name={i}
+                    onClick={(e) => handleTuxedoStyleDeleteThisItem(e, i)}
+                    className="delete-Btn"
+                  >
+                    Delete
+                  </button>
+                  <Accordion
+                    expanded={expanded1 === `p2${i}`}
+                    onChange={handleSuitChange(`p2${i}`)}
+                    className="Accrodian-main "
+                  >
+                    <AccordionSummary
+                      aria-controls="panel1d-content"
+                      id="panel1d-header"
+                      className="sidebarmenu fabric_infoNM"
+                    >
+                      <span>
+                        Fabric Information for{" "}
+                        <strong>
+                          {TuxedostyleObject["item_name"]
+                            .charAt(0)
+                            .toUpperCase() +
+                            TuxedostyleObject["item_name"].slice(1)}{" "}
+                          {" - " + (i + 1)}
+                          {""}
+                        </strong>
+                      </span>
+                    </AccordionSummary>
+                    <AccordionDetails className="information-accrodian">
+                      <div
+                        className="missing-fabric-wrapperMain"
+                        style={{ alignItems: "self-start" }}
+                      >
+                        <div className="fabric-left  pl_15">
+                          <form>
+                            {/* <div style={{display: "flex", flexDirection:"row", justifyContent:"space-around"}}> */}
+
+                            {/* 
+                              <div className="form-group ">
+                                <div className="title-fabrics">
+                                  <h3> Reference Image Pant</h3>
+                                </div>
+                                <label htmlFor="fileInput">
+
+                                  {
+                                      imageDataPant
+                                      ?
+                                      <img
+                                        style={{ width: "200px", height: "200px", borderRadius: "50%" }}
+                                        src={URL.createObjectURL(imageDataPant)} alt="" className='uploaded-image' />
+                                      :
+                                      SuitstylesArray[product + "_" + i] && SuitstylesArray[product + "_" + i]['pant'] && SuitstylesArray[product + "_" + i]['pant']['referance_image'] && SuitstylesArray[product + "_" + i]['pant']['referance_image'].length > 0
+                                        ?
+                                        <img
+                                          style={{ width: "200px", height: "200px", borderRadius: "50%" }}
+                                          src={PicBaseUrl + SuitstylesArray[product + "_" + i]['pant']['referance_image']} alt="" className='uploaded-image' />
+                                        :
+                                        <img
+                                          style={{ width: "200px", height: "200px", borderRadius: "50%" }}
+                                          src={ImageUpload} alt="" className='uploaded-image' />
+
+                                  }
+
+
+                                </label>
+
+                                <input type="file" name='image1' id="fileInput1" className="inputfile-button" style={{ display: 'none' }} onChange={(e) => setImageDataPant(e.target.files[0])} />
+
+                                <Button onClick={(e) => handleImageUploadSuit(e, i)}>Upload</Button>
+                              </div> */}
+
+                            {/* </div> */}
+
+                            <div className="title-fabrics">
+                              <h3> Main Fabric </h3>
+                              {i > 0 ? (
+                                <div className="copyCheckDiv">
+                                  <input
+                                    type="checkbox"
+                                    id="copyCheck"
+                                    onChange={(e) =>
+                                      handleTuxedoCopyStyleData(e, i)
+                                    }
+                                  />{" "}
+                                  <label for="copyCheck">
+                                    <strong>
+                                      Copy Styles of the previous Item.
+                                    </strong>
+                                  </label>
+                                </div>
+                              ) : (
+                                <></>
+                              )}
+                            </div>
+                            <div className="form-group ">
+                              <input
+                                type="text"
+                                className="searchinput"
+                                name="fabric_code"
+                                value={
+                                  TuxedostylesArray["tuxedo" + "_" + i][
+                                    "fabric_code"
+                                  ]
+                                    ? TuxedostylesArray["tuxedo" + "_" + i][
+                                    "fabric_code"
+                                    ]
+                                    : ""
+                                }
+                                placeholder="Enter Your Fabric"
+                                onChange={(event) =>
+                                  handleTuxedoFabricInput(event, i)
+                                }
+                              ></input>
+                            </div>
+                            <hr></hr>
+                            <div className="title-fabrics">
+                              <h3> Lining </h3>
+                            </div>
+                            <div className="form-group">
+                              {/* <p> Fabric form Retailer </p> */}
+                              <input
+                                type="text"
+                                className="searchinput"
+                                name="lining_code"
+                                value={
+                                  TuxedostylesArray["tuxedo" + "_" + i] &&
+                                    TuxedostylesArray["tuxedo" + "_" + i]["tuxedojacket"] &&
+                                    TuxedostylesArray["tuxedo" + "_" + i]["tuxedojacket"][
+                                    "lining_code"
+                                    ]
+                                    ? TuxedostylesArray["tuxedo" + "_" + i][
+                                    "tuxedojacket"
+                                    ]["lining_code"]
+                                    : ""
+                                }
+                                data-for="tuxedojacket"
+                                placeholder="Enter Your Lining"
+                                onChange={(event) =>
+                                  handleTuxedoChangeInput(event, i)
+                                }
+                              ></input>
+                            </div>
+                            <hr></hr>
+                            <div className="title-fabrics">
+                              <h3> Piping </h3>
+                            </div>
+                            <div className="form-group colored-style-boX">
+                              {piping !== null && piping.length > 0 ? (
+                                <ul
+                                  style={{
+                                    display: "block",
+                                    overflowY: "auto",
+                                    height: "400px",
+                                  }}
+                                >
+                                  {piping.map((data, key) => (
+                                    <li key={key}>
+                                      <input
+                                        type="radio"
+                                        name={"piping_" + i}
+                                        data-name={data.pipingCode}
+                                        id={data._id + "_" + i}
+                                        value={data.pipingCode}
+                                        style={{ display: "none" }}
+                                        onChange={(event) =>
+                                          handleTuxedoPipingInput(event, i)
+                                        }
+                                        checked={
+                                          TuxedostylesArray["tuxedo" + "_" + i] &&
+                                            TuxedostylesArray["tuxedo" + "_" + i][
+                                            "tuxedojacket"
+                                            ] &&
+                                            TuxedostylesArray["tuxedo" + "_" + i][
+                                            "tuxedojacket"
+                                            ]["piping"] == data.pipingCode
+                                            ? true
+                                            : false
+                                        }
+                                      />
+                                      <label for={data._id + "_" + i}>
+                                        <div className="colored-boxes">
+                                          <img
+                                            src={PicBaseUrl + data.image}
+                                            style={{
+                                              width: "60px",
+                                              height: "60px",
+                                              borderRadius: "11px",
+                                            }}
+                                          />
+                                        </div>
+                                        <p> {data.pipingCode} </p>
+                                      </label>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <>
+                                  <p>No data found</p>
+                                </>
+                              )}
+                            </div>
+                            <hr></hr>
+                            <div className="title-fabrics">
+                              {" "}
+                              <h3> Monogram </h3>{" "}
+                            </div>
+                            <div className="form-group monogram-info">
+                              <input
+                                type="text"
+                                className="searchinput"
+                                placeholder="Tag"
+                                name="tag"
+                                value={
+                                  TuxedostylesArray["tuxedo" + "_" + i] &&
+                                    TuxedostylesArray["tuxedo" + "_" + i]["tuxedojacket"] &&
+                                    TuxedostylesArray["tuxedo" + "_" + i]["tuxedojacket"][
+                                    "monogram"
+                                    ]
+                                    ? TuxedostylesArray["tuxedo" + "_" + i][
+                                      "tuxedojacket"
+                                    ].monogram.tag
+                                    : ""
+                                }
+                                data-for="monogram"
+                                onChange={(event) =>
+                                  handleTuxedoChangeInput(event, i)
+                                }
+                              ></input>
+                            </div>
+                            {/* <div className="form-group monogram-info">
+                              <p> Monogram Position </p>
+                              <ul>
+                                <li>
+                                  <input
+                                    type="radio"
+                                    name={"side" + "_" + i}
+                                    data-for="monogram"
+                                    data-newname="side"
+                                    value="left side"
+                                    id={"myCheckbox0a1" + "_" + i}
+                                    checked={
+                                      SuitstylesArray["suit" + "_" + i] &&
+                                        SuitstylesArray["suit" + "_" + i][
+                                        "jacket"
+                                        ] &&
+                                        SuitstylesArray["suit" + "_" + i][
+                                          "jacket"
+                                        ].monogram &&
+                                        SuitstylesArray["suit" + "_" + i][
+                                          "jacket"
+                                        ].monogram["side"] == "left side"
+                                        ? true
+                                        : false
+                                    }
+                                    onChange={(event) =>
+                                      handleSuitMonogramSideChange(event, i)
+                                    }
+                                  />
+                                  <label for={"myCheckbox0a1" + "_" + i}>
+                                    <h5> Left Side </h5>
+                                  </label>
+                                </li>
+                                <li>
+                                  <input
+                                    type="radio"
+                                    name={"side" + "_" + i}
+                                    data-for="monogram"
+                                    data-newname="side"
+                                    value="right side"
+                                    checked={
+                                      SuitstylesArray["suit" + "_" + i] &&
+                                        SuitstylesArray["suit" + "_" + i][
+                                        "jacket"
+                                        ] &&
+                                        SuitstylesArray["suit" + "_" + i][
+                                          "jacket"
+                                        ].monogram &&
+                                        SuitstylesArray["suit" + "_" + i][
+                                          "jacket"
+                                        ].monogram["side"] == "right side"
+                                        ? true
+                                        : false
+                                    }
+                                    id={"myCheckbox0a2" + "_" + i}
+                                    onChange={(event) =>
+                                      handleSuitMonogramSideChange(event, i)
+                                    }
+                                  />
+                                  <label for={"myCheckbox0a2" + "_" + i}>
+                                    <h5> Right Side </h5>
+                                  </label>
+                                </li>
+                              </ul>
+                            </div> */}
+                            <div className="form-group monogram-foont-style">
+                              <p> Monogram Font Style </p>
+                              <ul>
+                                {fontStyle.map((fontStyles, key) => {
+                                  return (
+                                    <li key={key}>
+                                      <input
+                                        type="radio"
+                                        name={"font_style_" + i}
+                                        checked={
+                                          TuxedostylesArray["tuxedo" + "_" + i] &&
+                                            TuxedostylesArray["tuxedo" + "_" + i][
+                                            "tuxedojacket"
+                                            ] &&
+                                            TuxedostylesArray["tuxedo" + "_" + i][
+                                              "tuxedojacket"
+                                            ].monogram &&
+                                            TuxedostylesArray["tuxedo" + "_" + i][
+                                              "tuxedojacket"
+                                            ].monogram["font"] ==
+                                            fontStyles.styleName
+                                            ? true
+                                            : false
+                                        }
+                                        data-for="monogram"
+                                        value={fontStyles.styleName}
+                                        id={
+                                          "myCheckboxb" +
+                                          fontStyles.styleName +
+                                          "_" +
+                                          i
+                                        }
+                                        onChange={(event) =>
+                                          handleTuxedoMonogramFontstyleChange(
+                                            event,
+                                            i
+                                          )
+                                        }
+                                      />
+                                      <label
+                                        for={
+                                          "myCheckboxb" +
+                                          fontStyles.styleName +
+                                          "_" +
+                                          i
+                                        }
+                                      >
+                                        <img
+                                          src={fontStyles.image}
+                                          alt="Monogram Font Style"
+                                        />
+                                        <p> {fontStyles.styleName} </p>
+                                      </label>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                            <div className="form-group colored-style-boX">
+                              <p> Monogram Color </p>
+                              {colorData !== null && colorData.length > 0 ? (
+                                <ul
+                                  style={{
+
+                                    display: "block",
+                                    overflowY: "auto",
+                                    height: "400px",
+
+                                  }}
+                                >
+                                  {colorData.map((data, key) => (
+                                    <li key={key}>
+                                      <input
+                                        type="radio"
+                                        className="radio"
+                                        name={"color" + "_" + i}
+                                        data-for="monogram"
+                                        style={{ display: "none" }}
+                                        id={data.id + "_" + i}
+                                        checked={
+                                          TuxedostylesArray["tuxedo" + "_" + i] &&
+                                            TuxedostylesArray["tuxedo" + "_" + i][
+                                            "tuxedojacket"
+                                            ] &&
+                                            TuxedostylesArray["tuxedo" + "_" + i][
+                                            "tuxedojacket"
+                                            ]["monogram"] &&
+                                            TuxedostylesArray["tuxedo" + "_" + i][
+                                              "tuxedojacket"
+                                            ].monogram["color"] == data.value
+                                            ? true
+                                            : false
+                                        }
+                                        value={data.value}
+                                        onChange={(event) =>
+                                          handleTuxedoMonogramColorChange(
+                                            event,
+                                            i
+                                          )
+                                        }
+                                        defaultChecked={false}
+                                      />
+                                      <label for={data.id + "_" + i}>
+                                        <div
+                                          className="colored-boxes"
+                                          style={{
+                                            backgroundColor: `${data.color}`,
+                                          }}
+                                        ></div>{" "}
+                                        <p> {data.value} </p>
+                                      </label>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <>
+                                  <p>No data found</p>
+                                </>
+                              )}
+                            </div>
+
+                            <hr></hr>
+                            {Object.keys(TuxedoJacket).length > 0 ? (
+                              <>
+                                <div className="title-fabrics">
+                                  <h3> {TuxedoJacket.name.toUpperCase()} : -</h3>
+                                </div>
+                                <div className="title-fabrics">
+                                  <h3> Normal Styles </h3>
+                                </div>
+                                <TuxedoStyles
+                                  featuresStyle={TuxedoJacket['features']}
+                                  TuxedostylesArray={TuxedostylesArray}
+                                  setTuxedostylesArray={setTuxedostylesArray}
+                                  product="tuxedojacket"
+                                  productIndex={i}
+                                  tuxedoFeaturesNameArray={tuxedoFeaturesNameArray}
+                                  tuxedoGroupFeaturesNamesArray={tuxedoGroupFeaturesNamesArray}
+                                >
+
+                                </TuxedoStyles>
+
+                                <div className="title-fabrics">
+                                  <h3>Additional Styles </h3>
+                                  <div style={{ display: 'flex', alignItems: 'center', marginLeft: "auto" }}>
+                                    <label for={"tuxedojacket_" + i}><strong>Show Tuxedo Jacket Additional styles</strong></label>
+                                    <input type="checkbox" id={"tuxedojacket_" + i} checked={showTuxedoAdditionalStyles['tuxedojacket_' + "_" + i]} onChange={(e) => handleShowTuxedoAdditionalStyles(e, i, 'tuxedojacket_')} />
+                                  </div>
+                                </div>
+                                {showTuxedoAdditionalStyles['tuxedojacket_' + "_" + i]
+                                  ?
+                                  <TuxedoAdditionalStyles
+                                    featuresStyle={TuxedoJacket['features']}
+                                    TuxedostylesArray={TuxedostylesArray}
+                                    setTuxedostylesArray={setTuxedostylesArray}
+                                    product="tuxedojacket"
+                                    productIndex={i}
+                                    normalCount={normalTuxedoJacketStyleCount}>
+
+                                  </TuxedoAdditionalStyles>
+                                  :
+                                  <></>
+                                }
+                              </>
+
+                            ) : (
+                              <></>
+                            )}
+
+                            <hr></hr>
+                            {Object.keys(TuxedoPant).length > 0 ? (
+                              <>
+                                <div className="title-fabrics">
+                                  <h3> {TuxedoPant.name.toUpperCase()} : -</h3>
+                                </div>
+                                <div className="title-fabrics">
+                                  <h3> Normal Styles </h3>
+                                </div>
+                                <TuxedoStyles
+                                  featuresStyle={TuxedoPant['features']}
+                                  TuxedostylesArray={TuxedostylesArray}
+                                  setTuxedostylesArray={setTuxedostylesArray}
+                                  product="pant"
+                                  productIndex={i}
+                                  tuxedoFeaturesNameArray={tuxedoFeaturesNameArray}
+                                  tuxedoGroupFeaturesNamesArray={tuxedoGroupFeaturesNamesArray}
+                                >
+
+                                </TuxedoStyles>
+
+                                <div className="title-fabrics">
+                                  <h3>Additional Styles </h3>
+                                  <div style={{ display: 'flex', alignItems: 'center', marginLeft: "auto" }}>
+                                    <label for={"pant_" + i}><strong>Show Pant Additional styles</strong></label>
+                                    <input type="checkbox" id={"pant_" + i} checked={showTuxedoAdditionalStyles['pant' + "_" + i]} onChange={(e) => handleShowTuxedoAdditionalStyles(e, i, 'pant')} />
+                                  </div>
+                                </div>
+                                {showTuxedoAdditionalStyles['pant' + "_" + i]
+                                  ?
+                                  <TuxedoAdditionalStyles
+                                    featuresStyle={TuxedoPant['features']}
+                                    TuxedostylesArray={TuxedostylesArray}
+                                    setTuxedostylesArray={setTuxedostylesArray}
+                                    product="pant"
+                                    productIndex={i}
+                                    normalCount={normalTuxedoPantStyleCount}>
+
+                                  </TuxedoAdditionalStyles>
+                                  :
+                                  <></>
+                                }
+                              </>
+
+                            ) : (
+                              <></>
+                            )}
+
+
+                            <div className="form-group pd-top-15p">
+                              <label>
+                                {" "}
+                                <h3>Note</h3>{" "}
+                              </label>
+                              <textarea
+                                className="searchinput"
+                                name="note"
+                                value={
+                                  TuxedostylesArray["tuxedo" + "_" + i]["note"]
+                                    ? TuxedostylesArray["tuxedo" + "_" + i]["note"]
+                                    : ""
+                                }
+                                placeholder="Special note (if any)"
+                                onChange={(e) =>
+                                  handleTuxedoFabricNoteInput(e, i)
+                                }
+                              ></textarea>
+                            </div>
+                            <div className="form-group " >
+
+                              <div className="title-fabrics">
+                                <h3> Reference Image </h3>
+                              </div>
+                              <label htmlFor="fileInput">
+
+                                {
+                                  imageDataTuxedo
+                                    ?
+                                    <img
+                                      style={{ width: "200px", height: "200px", borderRadius: "50%" }}
+                                      src={URL.createObjectURL(imageDataTuxedo)} alt="" className='uploaded-image' />
+                                    :
+                                    TuxedostylesArray["tuxedo_" + i] && TuxedostylesArray["tuxedo_" + i]['referance_image'] && TuxedostylesArray["tuxedo_" + i]['referance_image'].length > 0
+                                      ?
+                                      <img
+                                        style={{ width: "200px", height: "200px", borderRadius: "50%" }}
+                                        src={PicBaseUrl + TuxedostylesArray["tuxedo_" + i]['referance_image']} alt="" className='uploaded-image' />
+                                      :
+                                      <img
+                                        style={{ width: "200px", height: "200px", borderRadius: "50%" }}
+                                        src={ImageUpload} alt="" className='uploaded-image' />
+
+                                }
+
+
+                              </label>
+
+                              <input type="file" name='image' id="fileInput" className="inputfile-button" style={{ display: 'none' }} onChange={(e) => setImageDataTuxedo(e.target.files[0])} />
+                              <Button onClick={(e) => handleImageUploadTuxedo(e, i)}>Upload</Button>
+                            </div>
+                          </form>
+                        </div>
+
+                        <div
+                          className="fabric-right"
+                          style={{
+                            position: "sticky",
+                            top: "0px",
+                            height: "auto",
+                          }}
+                        >
+                          <div className="fabric-customer-info">
+                            <div className="fabric-accrodian-box">
+                              <div className="fabric_info_card">
+                                <h4 className="fic_title">
+                                  Suit
+                                  <span style={{ marginLeft: "8px" }}>
+                                    Styling Reference Image
+                                  </span>
+                                </h4>
+                                <div className="fi_card_body">
+                                  <div className="custome_row">
+                                    <div className="custome_col_6 br_0">
+                                      <h5> Image </h5>
+                                      <span className="blue_text">
+                                        {TuxedostylesArray["tuxedo" + "_" + i]["referance_image"]
+                                          ?
+                                          <img width="50" height="50" src={PicBaseUrl + TuxedostylesArray["tuxedo" + "_" + i]["referance_image"]}></img>
+                                          : "NA"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="fabric_info_card">
+                                <h4 className="fic_title">Fabric Information</h4>
+
+                                <div className="fi_card_body">
+                                  <ul className="custome_row">
+                                    <li className="custome_col_6">
+                                      <h5> FABRIC </h5>
+                                      <span className="blue_text">
+                                        {TuxedostylesArray["tuxedo" + "_" + i][
+                                          "fabric_code"
+                                        ]
+                                          ? TuxedostylesArray[
+                                          "tuxedo" + "_" + i
+                                          ]["fabric_code"]
+                                          : "NA"}
+                                      </span>
+                                    </li>
+                                    <li className="custome_col_6">
+                                      <h5> LINING </h5>
+                                      <span className="blue_text">
+                                        {TuxedostylesArray["tuxedo" + "_" + i]['tuxedojacket'] && TuxedostylesArray["tuxedo" + "_" + i]['tuxedojacket'][
+                                          "lining_code"
+                                        ]
+                                          ? TuxedostylesArray[
+                                          "tuxedo" + "_" + i
+                                          ]['tuxedojacket']["lining_code"]
+                                          : "NA"}
+                                      </span>
+                                    </li>
+
+                                    <li className="custome_col_6">
+                                      <h5> PIPING TYPE </h5>
+                                      <span className="blue_text">
+                                        {TuxedostylesArray["tuxedo" + "_" + i]['tuxedojacket'] && TuxedostylesArray["tuxedo" + "_" + i]['tuxedojacket'][
+                                          "piping"
+                                        ]
+                                          ? TuxedostylesArray[
+                                          "tuxedo" + "_" + i
+                                          ]['tuxedojacket']["piping"]
+                                          : "NA"}
+                                      </span>
+                                    </li>
+                                    {TuxedostylesArray["tuxedo" + "_" + i]['tuxedojacket'] && TuxedostylesArray["tuxedo" + "_" + i]['tuxedojacket'][
+                                      "monogram"
+                                    ]
+                                      ? Object.keys(
+                                        TuxedostylesArray["tuxedo" + "_" + i]['tuxedojacket'][
+                                        "monogram"
+                                        ]
+                                      ).map((mono) => {
+                                        return (
+                                          <li className="custome_col_6">
+                                            <h5>{mono.toUpperCase()}</h5>
+                                            <span className="blue_text">
+                                              {TuxedostylesArray[
+                                                "tuxedo" + "_" + i
+                                              ]['tuxedojacket']["monogram"] &&
+                                                TuxedostylesArray[
+                                                  "tuxedo" + "_" + i
+                                                ]['tuxedojacket']["monogram"][mono].length > 0
+                                                ? TuxedostylesArray[
+                                                "tuxedo" + "_" + i
+                                                ]['tuxedojacket']["monogram"][mono]
+                                                : "NA"}
+                                            </span>
+                                          </li>
+                                        );
+                                      })
+                                      : ""}
+                                  </ul>
+
+                                </div>
+                              </div>
+
+                              <div className="fabric_info_card">
+                                <h4 className="fic_title">
+                                  {"Jacket"
+                                    ? "Jacket".toUpperCase()
+                                    : " "}
+                                  <span style={{ marginLeft: "8px" }}>
+                                    Styling info
+                                  </span>
+                                </h4>
+                                <div className="fi_card_body">
+                                  <ul className="custome_row">
+                                    {TuxedostylesArray["tuxedo" + "_" + i]['tuxedojacket'] && TuxedostylesArray["tuxedo" + "_" + i]['tuxedojacket'][
+                                      "style"
+                                    ]
+                                      ? Object.keys(
+                                        TuxedostylesArray["tuxedo" + "_" + i]['tuxedojacket'][
+                                        "style"
+                                        ]
+                                      ).map((mono) => {
+                                        return (
+                                          <li className="custome_col_6">
+                                            <h5>{mono.toUpperCase()}</h5>
+                                            <span className="blue_text">
+                                              {TuxedostylesArray[
+                                                "tuxedo" + "_" + i
+                                              ]['tuxedojacket'] && TuxedostylesArray[
+                                              "tuxedo" + "_" + i
+                                              ]['tuxedojacket']["style"] &&
+                                                TuxedostylesArray[
+                                                  "tuxedo" + "_" + i
+                                                ]['tuxedojacket']["style"][mono]["value"]
+                                                  .length > 0
+                                                ? TuxedostylesArray[
+                                                "tuxedo" + "_" + i
+                                                ]['tuxedojacket']["style"][mono]["value"]
+                                                : "NA"}
+                                            </span>
+                                          </li>
+                                        );
+                                      })
+                                      : ""}
+
+                                    {TuxedostylesArray["tuxedo_" + i] &&
+                                      TuxedostylesArray["tuxedo_" + i]['tuxedojacket'] &&
+                                      TuxedostylesArray["tuxedo_" + i]['tuxedojacket']["groupStyle"]
+                                      ? Object.keys(
+                                        TuxedostylesArray["tuxedo_" + i]['tuxedojacket'][
+                                        "groupStyle"
+                                        ]
+                                      ).map((styles) => {
+                                        return (
+                                          <li className="custome_col_12">
+                                            <h5>{styles.toUpperCase()}</h5>
+
+                                            <span className="blue_text">
+                                              {
+                                                // Object.keys(
+                                                //   TuxedostylesArray["tuxedo_" + i]['tuxedojacket']["groupStyle"][styles]
+                                                // ).length > 0
+                                                //   ?
+
+
+                                                TuxedostylesArray[
+                                                "tuxedo_" + i
+                                                ]['tuxedojacket']["groupStyle"][styles]['value']
+
+
+
+                                                // :
+                                                // ""
+                                              }
+
+                                            </span>
+
+                                          </li>
+                                        );
+                                      })
+                                      : ""}
+
+
+                                  </ul>
+                                </div>
+                              </div>
+
+                              <div className="fabric_info_card">
+                                <h4 className="fic_title">
+                                  {"Pant"
+                                    ? "Pant".toUpperCase()
+                                    : " "}
+                                  <span style={{ marginLeft: "8px" }}>
+                                    Styling info
+                                  </span>
+                                </h4>
+                                <div className="fi_card_body">
+                                  <ul className="custome_row">
+                                    {TuxedostylesArray["tuxedo" + "_" + i] && TuxedostylesArray["tuxedo" + "_" + i]['pant'] && TuxedostylesArray["tuxedo" + "_" + i]['pant']['style']
+                                      ? Object.keys(
+                                        TuxedostylesArray["tuxedo" + "_" + i]['pant']['style']
+                                      ).map((mono) => {
+                                        return (
+                                          <li className="custome_col_6">
+                                            <h5>{mono.toUpperCase()}</h5>
+                                            <span className="blue_text">
+                                              {
+                                                TuxedostylesArray[
+                                                  "tuxedo" + "_" + i
+                                                ]['pant']
+                                                  &&
+                                                  TuxedostylesArray[
+                                                  "tuxedo" + "_" + i
+                                                  ]['pant']['style'] &&
+                                                  TuxedostylesArray[
+                                                    "tuxedo" + "_" + i
+                                                  ]['pant']['style'][mono]["value"]
+                                                    .length > 0
+                                                  ? TuxedostylesArray[
+                                                  "tuxedo" + "_" + i
+                                                  ]['pant']['style'][mono]["value"]
+                                                  : "NA"}
+                                            </span>
+                                          </li>
+                                        );
+                                      })
+                                      : ""}
+                                    {TuxedostylesArray["tuxedo_" + i] &&
+                                      TuxedostylesArray["tuxedo_" + i]['pant'] &&
+                                      TuxedostylesArray["tuxedo_" + i]['pant']["groupStyle"]
+                                      ? Object.keys(
+                                        TuxedostylesArray["tuxedo_" + i]['pant'][
+                                        "groupStyle"
+                                        ]
+                                      ).map((styles) => {
+                                        return (
+                                          <li className="custome_col_12">
+                                            <h5>{styles.toUpperCase()}</h5>
+                                            <span className="blue_text">
+                                              {
+                                                // Object.keys(
+                                                //   TuxedostylesArray["tuxedo_" + i]['pant']["groupStyle"][styles]
+                                                // ).length > 0
+                                                //   ?
+
+
+                                                TuxedostylesArray[
+                                                "tuxedo_" + i
+                                                ]['pant']["groupStyle"][styles]['value']
+
+
+                                                // :
+                                                // ""
+                                              }
+
+                                            </span>
+                                          </li>
+                                        );
+                                      })
+                                      : ""}
+                                  </ul>
+                                </div>
+                              </div>
+
+                              <div className="fabric_info_card">
+                                <h4 className="fic_title">
+                                  {"tuxedo"
+                                    ? "tuxedo".toUpperCase()
+                                    : " "}
+                                  <span style={{ marginLeft: "8px" }}>
+                                    Styling Note info
+                                  </span>
+                                </h4>
+                                <div className="fi_card_body">
+                                  <div className="custome_row">
+                                    <div className="custome_col_6 br_0">
+                                      <h5> Note </h5>
+                                      <span className="blue_text">
+                                        {TuxedostylesArray["tuxedo" + "_" + i][
+                                          "note"
+                                        ]
+                                          ? TuxedostylesArray["tuxedo" + "_" + i][
+                                          "note"
+                                          ]
+                                          : "NA"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionDetails>
+                  </Accordion>
+                </>
+              );
+            })}
+          </>
+        ) : (
+          <></>
+        )}
         <div className="submit_buttonssm">
           <Button onClick={handleSubmit} className="custom-btn">
             Submit

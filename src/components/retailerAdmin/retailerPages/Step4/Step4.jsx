@@ -18,6 +18,7 @@ import mainQR from "../../../../images/PDFQR.png";
 import { renderToString } from "react-dom/server";
 import emailjs from '@emailjs/browser';
 import SuitMeasurements from "../../../Measurements/SuitMeasurements";
+import TuxedoMeasurements from "../../../Measurements/TuxedoMeasurements";
 import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
@@ -38,6 +39,7 @@ export default function Step4() {
   const [productsNameSuitArray, setProductsNameSuitArray] = useState("");
   const [open, setOpen] = useState(false);
   const [suitOpen, setSuitOpen] = useState(false);
+  const [tuxedoOpen, setTuxedoOpen] = useState(false);
   const [customer, setCustomer] = useState({});
   const [orders, setOrders] = useState([]);
   const [totalQuantity, setTotalQuantity] = useState(0);
@@ -81,17 +83,23 @@ export default function Step4() {
   const [suitData, setSuit] = useState("");
   const [suitFilledMeasurements, setSuitFilledMeasurement] = useState([]);
   const [newMeasurement, setNew] = useState([]);
+  const [newTuxedoMeasurement, setNewTuxedoMeasurement] = useState([]);
   const [isActive3, setIsActive3] = useState(false);
+  // const [isActive4, setIsActive4] = useState(false);
   const [isRushOrder, setIsRushOrder] = useState(false);
   const [draftMeasurementsObject, setDraftMeasurementsObject] = useState({})
   const [productFeaturesObject, setProductFeaturesObject] = useState({})
   const [stylesFinished, setStylesFinished] = useState(false)
   const [measurementsFinished, setMeasurementsFinished] = useState({})
+  const [tuxedo, setTuxedo] = useState()
+  const [tuxedoCustomerMeasurements, setTuxedoCustomerMeasurements] = useState({})
+  const [tuxedoFilledMeasurements, setTuxedoFilledMeasurement] = useState([]);
+
+
   // const [pdfData, setPdfData] = useState(null)
 
   // const [pdfFile, setPDFFile] = useState(null)
 
-  console.log("orders: ", orders)
   const missingMeasurementStyles = {
     color: "red",
     cursor: "pointer",
@@ -168,7 +176,15 @@ export default function Step4() {
           setSuitCustomerMeasurements(res.data.data[0]["suit"]);
           setSuitFilledMeasurement("suit");
         }
-      } else {
+      } else  if (
+        res.data.data[0]["tuxedo"] !== undefined &&
+        res.data.data[0]["tuxedo"] !== null
+      ) {
+        if (Object.keys(res.data.data[0]["tuxedo"]).length > 0) {
+          setTuxedoCustomerMeasurements(res.data.data[0]["tuxedo"]);
+          setTuxedoFilledMeasurement("tuxedo");
+        }
+      }else {
       }
     };
 
@@ -180,7 +196,6 @@ export default function Step4() {
       const res1 = await axiosInstance.post(
         "/userMeasurement/fetchCustomerByID/" + path
       );
-
       setCustomerData(res1.data.data[0]);
     };
     fetchCustomerData();
@@ -348,6 +363,65 @@ export default function Step4() {
 
       setOrders([...orders]);
 
+    } else if(e.target.value === "tuxedo"){
+      productsNameArray.push("tuxedo");
+
+      setTuxedo(e.target.value);
+      
+      let array = ["tuxedojacket", "pant"];
+
+      if(filledMeasurements.includes('tuxedojacket') && filledMeasurements.includes('pant')){
+        measurementsFinished['tuxedo'] = true
+        measurementsFinished['tuxedojacket'] = true
+        measurementsFinished['pant'] = true
+        setMeasurementsFinished({...measurementsFinished})
+      }else{
+        measurementsFinished['tuxedo'] = false
+        setMeasurementsFinished({...measurementsFinished})
+      }
+
+      for (let pro of array) {
+        let res1 = await axiosInstance.post(
+          "/product/fetchForMeasurementForTuxedo/" + pro,
+          {
+            token: user.data.token,
+          }
+        );
+
+        const obj = {};
+        if (
+          customer["tuxedo"]
+        ) {
+          measurementsFinished['tuxedo'] = true
+          measurementsFinished['tuxedojacket'] = true
+          measurementsFinished['pant'] = true
+          setMeasurementsFinished({...measurementsFinished});
+          setTuxedoCustomerMeasurements({ ...customer["tuxedo"]});
+        } else if (!tuxedoFilledMeasurements.includes(res1.data.data[0]["name"])) {
+          for (let x of res1.data.data[0].measurements) {
+            obj[x.name] = {
+              value: 0,
+              adjustment_value: 0,
+              total_value: 0,
+              thai_name: x.thai_name
+            };
+          }
+          
+          tuxedoCustomerMeasurements[pro] = { measurements: obj };
+          setTuxedoCustomerMeasurements({ ...tuxedoCustomerMeasurements });
+
+        }
+      }
+
+      const orderArray = {
+        item_name: "tuxedo",
+        quantity: 1,
+      };
+
+      orders.push(orderArray);
+
+      setOrders([...orders]);
+
     } else {
       const res = await axiosInstance.post(
         "/product/fetchForMeasurements/" + e.target.value,
@@ -449,6 +523,37 @@ export default function Step4() {
           );
         }
       }
+    }else if (customer['tuxedo']) {
+
+      for(let x of Object.keys(customer['tuxedo'])) {
+        if(x == e.target.dataset.name) {
+          if(customer['tuxedo'][e.target.dataset.name]?.["fitting_type"]){
+            customerMeasurements[e.target.dataset.name]["fitting_type"] = customer['tuxedo'][e.target.dataset.name]['fitting_type']
+            setCustomerMeasurements({ ...customerMeasurements });
+          }
+          if(customer['tuxedo'][e.target.dataset.name]?.['measurements']){
+            customerMeasurements[e.target.dataset.name]["measurements"] = customer['tuxedo'][e.target.dataset.name]['measurements']
+            setProductMeasurements(customer['tuxedo'][e.target.dataset.name]['measurements'])
+            setCustomerMeasurements({ ...customerMeasurements });
+          }
+          if(customer['tuxedo'][e.target.dataset.name]?.["pant_type"]){
+            customerMeasurements[e.target.dataset.name]["pant_type"] = customer['tuxedo'][e.target.dataset.name]['pant_type']
+            setCustomerMeasurements({ ...customerMeasurements });
+          }
+          if(customer['tuxedo'][e.target.dataset.name]?.["shoulder_type"]){
+              customerMeasurements[e.target.dataset.name]["shoulder_type"] = customer['tuxedo'][e.target.dataset.name]['shoulder_type']
+              setCustomerMeasurements({ ...customerMeasurements });
+          }
+          if(customer['tuxedo'][e.target.dataset.name]?.["notes"]){
+            customerMeasurements[e.target.dataset.name]["notes"] = customer['tuxedo'][e.target.dataset.name]['notes']
+            setCustomerMeasurements({ ...customerMeasurements });
+          }
+        }else {
+          setProductMeasurements(
+            customerMeasurements[e.target.dataset.name]["measurements"]
+          );
+        }
+      }
     }else{
       setProductMeasurements(
         customerMeasurements[e.target.dataset.name]["measurements"]
@@ -509,10 +614,14 @@ export default function Step4() {
     setSuitOpen(false);
   };
 
+  const handleCloseTuxedo = async (e) => {
+    setTuxedoOpen(false)
+  }
+
   const handleOnClick = async (e) => {
     e.target.value = "";
   };
-
+  console.log(customer)
   const handleSaveMeasurements = async (e) => {
     setIsActive(false);
     const res = await axiosInstance.put(
@@ -546,9 +655,8 @@ export default function Step4() {
     setProduct_name("");
     setOpen1(false)
   };
-  
+  console.log("tuxedoCustomerMeasurements: ", tuxedoCustomerMeasurements)
   const handlePlaceOrder = async (e) => {
-    console.log("oredrs: ", orders)
     if (orders.length > 0 && orders.length !== null && stylesFinished && !Object.values(measurementsFinished).includes(false)) {
 
       if (orders[0].styles !== undefined) {
@@ -564,6 +672,7 @@ export default function Step4() {
           retailer_id: user.data.id,
           measurements:customerMeasurements,
           Suitmeasurements: suitcustomerMeasurements,
+          Tuxedomeasurements: tuxedoCustomerMeasurements,
           order_items: orders,
           total_quantity: totalQuantity,
           rushOrderDate: date,
@@ -629,8 +738,6 @@ export default function Step4() {
           }
           ind = ind + 1
         }
-        console.log("orderid : ", order)
-        console.log(existingOrders.data.data[ourIndex])
         if(existingOrders.data.data.length > 1)
         {
           draftMeasurementsObj = existingOrders.data.data[ourIndex-1]['measurements']
@@ -649,6 +756,23 @@ export default function Step4() {
           let itemsObject1 = {
             item_name: m["item_name"],
             item_code: "jacket " + n,
+            quantity: m["quantity"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+          let itemsObject2 = {
+            item_name: m["item_name"],
+            item_code: "pant " + n,
+            quantity: m["quantity"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+          orderItemsArray.push(itemsObject1);          
+          orderItemsArray.push(itemsObject2);
+        }
+      }else if (m.item_name == "tuxedo") {
+        for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
+          let itemsObject1 = {
+            item_name: m["item_name"],
+            item_code: "tuxedojacket " + n,
             quantity: m["quantity"],
             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
           };
@@ -682,6 +806,44 @@ export default function Step4() {
           let itemsObject1 = {
             item_name: m["item_name"],
             item_code: "jacket " + n,
+            quantity: m["quantity"],
+            repeatOrder: res.data.data[0]["repeatOrder"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+
+          if (j % 5 == 0 || orderItemsArray.length == j) {
+            justAnArray.push(itemsObject1);
+            orderItemsArrayPDF.push(justAnArray);
+            justAnArray = [];
+          } else {
+            justAnArray.push(itemsObject1);
+          }
+
+          j = j + 1;
+
+          let itemsObject2 = {
+            item_name: m["item_name"],
+            item_code:  "pant " + n,
+            quantity: m["quantity"],
+            repeatOrder: res.data.data[0]["repeatOrder"],
+            styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+          };
+
+          if (j % 5 == 0 || orderItemsArray.length == j) {
+            justAnArray.push(itemsObject2);
+            orderItemsArrayPDF.push(justAnArray);
+            justAnArray = [];
+          } else {
+            justAnArray.push(itemsObject2);
+          }
+
+          j = j + 1;
+        }
+      } else if (m.item_name == "tuxedo") {
+        for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
+          let itemsObject1 = {
+            item_name: m["item_name"],
+            item_code: "tuxedojacket " + n,
             quantity: m["quantity"],
             repeatOrder: res.data.data[0]["repeatOrder"],
             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
@@ -781,6 +943,78 @@ export default function Step4() {
              quantity: m["quantity"],
              styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
              measurementsObject: res.data.data[0].Suitmeasurements['pant'],
+             manualSize:
+               res.data.data[0].manualSize == null ? (
+                 <></>
+               ) : (
+                 res.data.data[0].manualSize["pant"]
+               ),
+           };
+           
+           singleOrderArray.push(itemsObject1);
+           
+           singleOrderArray.push(itemsObject2);
+
+       }
+      } else if (m.item_name == "tuxedo") {
+        for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
+
+          let itemsObject1 = {
+             item_name: m["item_name"], 
+             item_code: "tuxedojacket " + n,
+             quantity: m["quantity"],
+             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+             measurementsObject: res.data.data[0].Tuxedomeasurements['tuxedojacket'],
+             manualSize:
+               res.data.data[0].manualSize == null ? (
+                 <></>
+               ) : (
+                 res.data.data[0].manualSize['jacket']
+               ),
+           };
+
+           let itemsObject2 = {
+             item_name: m["item_name"],
+             item_code: "pant " + n,
+             quantity: m["quantity"],
+             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+             measurementsObject: res.data.data[0].Tuxedomeasurements['pant'],
+             manualSize:
+               res.data.data[0].manualSize == null ? (
+                 <></>
+               ) : (
+                 res.data.data[0].manualSize['pant']
+               ),
+           };
+           
+           singleOrderArray.push(itemsObject1);
+           
+           singleOrderArray.push(itemsObject2);
+
+       }
+      }  else if (m.item_name == "tuxedo") {
+        for (let n = 1; n <= Object.keys(m["styles"][0]).length; n++) {
+
+          let itemsObject1 = {
+             item_name: m["item_name"],
+             item_code: "tuxedojacket " + n,
+             quantity: m["quantity"],
+             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+             measurementsObject: res.data.data[0].Tuxedomeasurements['tuxedojacket'],
+             manualSize:
+               res.data.data[0].manualSize == null ? (
+                 <></>
+               ) : (
+                 res.data.data[0].manualSize["tuxedojacket"]
+               ),
+           };
+
+           let itemsObject2 = {
+             item_name: m["item_name"],
+             item_code: "pant " + n,
+             quantity: m["quantity"],
+             styles: m["styles"][0][Object.keys(m["styles"][0])[n - 1]],
+             measurementsObject: res.data.data[0].Tuxedomeasurements['pant'],
              manualSize:
                res.data.data[0].manualSize == null ? (
                  <></>
@@ -2923,19 +3157,16 @@ export default function Step4() {
         token: user.data.token,
         order: res.data.data[0]['orderId']
       })
-      console.log('done')
     }
     
   };
 
   // ===========================================
   // ===========================================
-
-
+  console.log("show ", stylesFinished)
   const handleStyleDataSave = async (e) => {
     let styleF = true
     for(let x of orders){
-      console.log("Dfsdf: ", x['styles'])
       if(!x['styles']){
         styleF = false
       }
@@ -3098,6 +3329,129 @@ const action = (
 
 //------------- END --------------------//
 
+// ------------ Tuxedo Measurement ------------------//
+
+  const handleTuxedoMeasurements = async (e) => {
+    for (let x of Object.keys(tuxedoCustomerMeasurements)) {
+      const product = products.filter((pro) => {
+        return pro.name == x;
+      });
+
+      if(customer["measurementsObject"]){
+
+
+        if(Object.keys(customer['measurementsObject']).includes('pant') == true){
+
+          if(customer['measurementsObject'][x]?.["fitting_type"]){
+            tuxedoCustomerMeasurements[x]["fitting_type"] = customer['measurementsObject'][x]['fitting_type']
+            setTuxedoCustomerMeasurements({ ...tuxedoCustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["measurements"]) {
+            tuxedoCustomerMeasurements[x]["measurements"] = customer['measurementsObject'][x]['measurements']
+            setTuxedoCustomerMeasurements({ ...tuxedoCustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["pant_type"]) {
+            tuxedoCustomerMeasurements[x]["pant_type"] = customer['measurementsObject'][x]['pant_type']
+            setTuxedoCustomerMeasurements({ ...tuxedoCustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["notes"]) {
+            tuxedoCustomerMeasurements[x]["notes"] = customer['measurementsObject'][x]['notes']
+            setTuxedoCustomerMeasurements({ ...tuxedoCustomerMeasurements });
+          }
+        }
+        if(Object.keys(customer['measurementsObject']).includes('tuxedojacket')== true){
+
+          if(customer['measurementsObject'][x]?.["fitting_type"]){
+            tuxedoCustomerMeasurements[x]["fitting_type"] = customer['measurementsObject'][x]['fitting_type']
+            setTuxedoCustomerMeasurements({ ...tuxedoCustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["measurements"]) {
+            tuxedoCustomerMeasurements[x]["measurements"] = customer['measurementsObject'][x]['measurements']
+            setTuxedoCustomerMeasurements({ ...tuxedoCustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["shoulder_type"]) {
+            tuxedoCustomerMeasurements[x]["shoulder_type"] = customer['measurementsObject'][x]['shoulder_type']
+            setTuxedoCustomerMeasurements({ ...tuxedoCustomerMeasurements });
+          }
+          if(customer['measurementsObject'][x]?.["notes"]) {
+            tuxedoCustomerMeasurements[x]["notes"] = customer['measurementsObject'][x]['notes']
+            setTuxedoCustomerMeasurements({ ...tuxedoCustomerMeasurements });
+          }
+        }
+
+      }else{
+        setProductMeasurements1(tuxedoCustomerMeasurements[x]["measurements"])
+      }
+
+      let check = "true";
+
+      Object.keys(tuxedoCustomerMeasurements[x]["measurements"]).map(
+        (measurements) => {
+          if (
+            !tuxedoCustomerMeasurements[x]["measurements"][measurements][
+              "total_value"
+            ] > 0
+          ) {
+            check = "false";
+          }
+        }
+      );
+      if (check == "false") {
+        setIsMeasurementFilled(false);
+      } else {
+        setIsMeasurementFilled(true);
+      }
+
+      for (let i = 0; i < product.length; i++) {
+        let res = await axiosInstance.post(
+          "/customFittings/fetch/" + product[i]._id,
+          { token: user.data.token }
+        );
+
+        newTuxedoMeasurement.push({
+          name: product[i].name,
+          measurements: product[i].measurements,
+          custom: res.data.data,
+          m: tuxedoCustomerMeasurements[x]["measurements"],
+        });
+      }
+
+      setNewTuxedoMeasurement([...newTuxedoMeasurement]);
+    }
+    setProduct_name('tuxedo')
+    setIsActive4(true);
+    setTuxedoOpen(true);
+  };
+  const tuxedoSave = async (e) => {
+    setIsActive4(false);
+
+    const res = await axiosInstance.put(
+      "/userMeasurement/updateTuxedoCustomerMeasurements/" + path,
+      {
+        measurements: { ...tuxedoCustomerMeasurements },
+      }
+    );
+
+    customer["tuxedo"] = { ...tuxedoCustomerMeasurements } ;
+    setCustomer({ ...customer });
+
+    if (res.data.data["tuxedo"] &&
+      orders.length == Object.keys(res.data.data["tuxedo"]).length
+    ) {
+      setCanPlaceOrder(true);
+    }
+    setCanPlaceOrder(true);
+
+    setTuxedoFilledMeasurement('tuxedo');
+
+    measurementsFinished['tuxedo'] = true
+    setMeasurementsFinished({...measurementsFinished})
+
+    setTuxedoOpen(false);
+    setNewTuxedoMeasurement([]);
+  };
+//-------------END----------------------//
+
 // ===========================================================
 // ===========================================================
 
@@ -3108,6 +3462,7 @@ const fetchRetailer = async() => {
 
 // ===========================================================
 // ===========================================================
+
 
 
   return (
@@ -3182,6 +3537,9 @@ const fetchRetailer = async() => {
           {productsNameArray.includes("suit") ? "" : <option value={"suit"}>
             Suit
           </option>}
+          {productsNameArray.includes("tuxedo") ? "" : <option value={"tuxedo"}>
+            Tuxedo
+          </option>}
           {products.map((product, i) => {
             if (!productsNameArray.includes(product.name)) {
               return (
@@ -3217,6 +3575,8 @@ const fetchRetailer = async() => {
                       onClick={
                         products.item_name === "suit"
                           ? handleSuitMeasurement
+                          : products.item_name === "tuxedo"
+                          ? handleTuxedoMeasurements 
                           : handleManageMeasurement
                       }
                       // style={filledMeasurements.includes(products.item_name) || suitFilledMeasurements.includes(products.item_name)
@@ -3280,7 +3640,6 @@ const fetchRetailer = async() => {
                       +
                     </Button>
                   </td>
-
                   <td>
                     <button
                       value={products.item_name}
@@ -3367,6 +3726,21 @@ const fetchRetailer = async() => {
             suitcustomerMeasurements = {suitcustomerMeasurements}
             setSuitCustomerMeasurements = {setSuitCustomerMeasurements}
             suitSave = {suitSave}
+          />
+        </Dialog>
+
+        <Dialog
+          onClose={handleCloseTuxedo}
+          open={tuxedoOpen}
+          className={isActive4 ? "rigth-sideModel mui_show" : "rigth-sideModel"}
+        >
+          <DialogTitle>Product Measurement</DialogTitle>
+          <TuxedoMeasurements
+            newTuxedoMeasurement = {newTuxedoMeasurement}
+            setNewTuxedoMeasurement={setNewTuxedoMeasurement}
+            tuxedoCustomerMeasurements = {tuxedoCustomerMeasurements}
+            setTuxedoCustomerMeasurements = {setTuxedoCustomerMeasurements}
+            tuxedoSave = {tuxedoSave}
           />
         </Dialog>
 

@@ -610,6 +610,8 @@ export default function AssignItem(){
               let itemName = "";
               if(code === 'suit'){
                 itemName = job['item_code'].split("/")[1].split("_")[1] + " " + Number(job['item_code'].split("/")[1].split("_")[2]) + 1
+              }else if(code === 'tuxedo'){
+                itemName = job['item_code'].split("/")[1].split("_")[1] + " " + Number(job['item_code'].split("/")[1].split("_")[2]) + 1
               }else{
                 itemName = code + " " + Number(job['item_code'].split("/")[1].split("_")[1]) + 1
               }
@@ -712,6 +714,19 @@ export default function AssignItem(){
                         +
                         ")"
                         :
+                        singleUnfinishedJob.item_code.split("/")[1].split("_")[0] == 'tuxedo'
+                        ?
+                        Number(singleUnfinishedJob.item_code.split("/")[1].split("_")[2]) +
+                        1 +
+                        " " +
+                        singleUnfinishedJob.item_code.split("/")[1].split("_")[1]
+                        + 
+                        " ("
+                        +
+                        singleUnfinishedJob.item_code.split("/")[1].split("_")[0]
+                        +
+                        ")"
+                        :
                         Number(singleUnfinishedJob.item_code.split("/")[1].split("_")[1]) +
                           1 +
                           " " +
@@ -771,6 +786,8 @@ export default function AssignItem(){
                     const code = jobs[0]['item_code'].split("/")[1]
                     let itemName = "";
                     if(code.split("_")[0] === "suit"){
+                      itemName = code.split("_")[1]
+                    }else if(code.split("_")[0] === "tuxedo"){
                       itemName = code.split("_")[1]
                     }else{
                       itemName = code.split("_")[0]

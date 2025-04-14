@@ -984,6 +984,19 @@ export default function ManageJobs() {
                                 +
                                 ")"
                                 :
+                                job.item_code.split("/")[1].split("_")[0] == 'tuxedo'
+                                ?
+                                Number(job.item_code.split("/")[1].split("_")[2]) +
+                                1 +
+                                " " +
+                                job.item_code.split("/")[1].split("_")[1]
+                                +
+                                " ("
+                                +
+                                job.item_code.split("/")[1].split("_")[0]
+                                +
+                                ")"
+                                :
                                 Number(job.item_code.split("/")[1].split("_")[1]) +
                                 1 +
                                 " " +

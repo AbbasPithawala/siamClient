@@ -6049,18 +6049,21 @@ export default function GroupOrder() {
     const res = await axiosInstance.post("/groupOrders/fetchAll", {
       token: user.data.token,
     });
-    let L = res.data.data.filter((x) => x.order_status == "New Order");
+    
+    if (res.data.status === true) {
+    let L = res.data.data?.filter((x) => x.order_status == "New Order");
     setLength1(L.length);
-    let L1 = res.data.data.filter((x) => x.order_status == "Modified");
+    let L1 = res.data.data?.filter((x) => x.order_status == "Modified");
     setLength2(L1.length);
-    let L2 = res.data.data.filter((x) => x.order_status == "Rush");
+    let L2 = res.data.data?.filter((x) => x.order_status == "Rush");
     setLength3(L2.length);
-    let L3 = res.data.data.filter((x) => x.order_status == "Processing");
+    let L3 = res.data.data?.filter((x) => x.order_status == "Processing");
     setLength4(L3.length);
-    let L4 = res.data.data.filter((x) => x.order_status == "Shipment");
+    let L4 = res.data.data?.filter((x) => x.order_status == "Shipment");
     setLength5(L4.length);
-    let L5 = res.data.data.filter((x) => x.order_status == "Sent");
+    let L5 = res.data.data?.filter((x) => x.order_status == "Sent");
     setLength6(L5.length);
+    }
   };
   const fetchRetailers = async () => {
     const res = await axiosInstance.post("/retailer/fetchAll", {
