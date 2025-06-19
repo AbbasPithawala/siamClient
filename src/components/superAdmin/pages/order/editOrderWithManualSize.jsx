@@ -272,11 +272,15 @@ export default function EditOrderWithManualSize() {
           }
           ind = ind + 1
         }
-          draftMeasurementsObj = existingOrders.data.data[ourIndex - 1]['measurements']
-          setDraftMeasurementsObject(draftMeasurementsObj)
+        console.log("existing orders: ", existingOrders.data.data)
+        
+        if(existingOrders.data.data[ourIndex - 1]){
+          draftMeasurementsObj = existingOrders.data.data[ourIndex - 1]['measurements'] ? existingOrders.data.data[ourIndex - 1]['measurements'] : {}
+        setDraftMeasurementsObject(draftMeasurementsObj)
+        }
       }else if(existingOrders.data.status == true && existingOrders.data.data.length == 1){
-        draftMeasurementsObj = existingOrders.data.data[0]['measurements']
-          setDraftMeasurementsObject(draftMeasurementsObj)
+        draftMeasurementsObj = existingOrders.data.data[0]['measurements'] ? existingOrders.data.data[0]['measurements'] : {}
+        setDraftMeasurementsObject(draftMeasurementsObj)
       }
     }
       for (let x of res1.data.data[0]['order_items']) {
@@ -758,7 +762,8 @@ export default function EditOrderWithManualSize() {
 
   // }
 
-
+console.log("sdfds:", customerMeasurements)
+console.log("sdasd:", suitcustomerMeasurements)
   const handleEditOrder = async (e) => {
     const order = {
       order_items: orders,
@@ -884,7 +889,7 @@ export default function EditOrderWithManualSize() {
       draftMeasurementsObj = previousOrder.data.data[0]['measurements']
     }else{
       const existingOrders = await axiosInstance2.post("/customerOrders/fetchCustomerOrders/" + res.data.data[0]['customer_id']['_id'], {token: user.data.token})
-  
+      
   if(existingOrders.data.status == true && existingOrders.data.data.length > 1){
         let ind = 0;
         let ourIndex ;
@@ -894,10 +899,12 @@ export default function EditOrderWithManualSize() {
           }
           ind = ind + 1
         }
-          draftMeasurementsObj = existingOrders.data.data[ourIndex - 1]['measurements']
-          setDraftMeasurementsObject(draftMeasurementsObj)
+        if(existingOrders.data.data[ourIndex - 1]){
+          draftMeasurementsObj = existingOrders.data.data[ourIndex - 1]['measurements'] ? existingOrders.data.data[ourIndex - 1]['measurements'] : {}
+        setDraftMeasurementsObject(draftMeasurementsObj)
+        }
       }else if(existingOrders.data.status == true && existingOrders.data.data.length == 1){
-        draftMeasurementsObj = existingOrders.data.data[0]['measurements']
+        draftMeasurementsObj = existingOrders.data.data[0]['measurements'] ? existingOrders.data.data[0]['measurements'] : {}
           setDraftMeasurementsObject(draftMeasurementsObj)
       }
     }

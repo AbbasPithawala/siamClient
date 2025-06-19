@@ -6,6 +6,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
+import { countries } from './countries';
 import RetailerHeader from '../../../retailerAdmin/RetailerHeader/RetailerHeader';
 import { ElevatorSharp } from '@mui/icons-material';
 // import react-loader-spinner from "react-loader-spinner";
@@ -163,16 +164,15 @@ export default function ManageRetailerForm() {
     const isValidRetailCode =  async(email) => {
       return /^[A-Z]*$/.test(email);
     }
-
     const handleCheckRetailerCode = async (e)=>{
-      if(e.target.value.length > 3)
+      if(e.target.value.length > 5)
      { 
       setRetailerCodeAlreadyExists(false)
-      setIfRetailerCodeExistText("Retailer code cant be more than 3 characters")
+      setIfRetailerCodeExistText("Retailer code cant be more than 5 characters")
       
     }else if(e.target.value.length < 3){
       setRetailerCodeAlreadyExists(false)
-      setIfRetailerCodeExistText("Retailer should be equals to 3 characters")
+      setIfRetailerCodeExistText("Retailer code should be atleast upto 3 characters")
     }else if(!isValidRetailCode(e.target.value)) {
       setRetailerCodeAlreadyExists(false)
       setIfRetailerCodeExistText("Should be only letters to (A-Z).")
@@ -241,7 +241,7 @@ export default function ManageRetailerForm() {
                     </div>
                     <div className={validationError.retailerCode ? "searchinput-inner error-handle col" : "searchinput-inner col"}>
                       <label>Retailer Code <span className="red-required">*</span></label>
-                      <input className={retailerCodeAlreadyExists ? "searchinput" : "searchinput retailerCodeInput"} type="text" maxlength="3" onChange={(e) => setRetailerCode(e.target.value.toUpperCase())} value={retailerCode} onKeyUp={handleCheckRetailerCode}/>
+                      <input className={retailerCodeAlreadyExists ? "searchinput" : "searchinput retailerCodeInput"} type="text" maxlength="5" onChange={(e) => setRetailerCode(e.target.value.toUpperCase())} value={retailerCode} onKeyUp={handleCheckRetailerCode}/>
                       <span hidden={retailerCodeAlreadyExists}>{ifRetailerCodeExistText}</span>
                     </div>
                     <div className="searchinput-inner col">
@@ -264,9 +264,14 @@ export default function ManageRetailerForm() {
                       <label>Country</label>
                       <select className="searchinput" value={country} onChange={(e) => setCountry(e.target.value)}>
                         <option> - Select Country - </option>
-                        <option value="India">India</option>
-                        <option value="Thailand">Thailand</option>
-                        <option value="China">China</option>  
+                        {countries.length > 1 ?
+                        countries.map((single) => {
+                          return(
+                            <option value={single.name}>{single.name}</option>
+                          )
+                        })
+                      :
+                      <></>}
                       </select>
                     </div>
                     <div className="searchinput-inner col">

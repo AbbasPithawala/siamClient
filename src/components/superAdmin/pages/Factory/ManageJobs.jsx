@@ -508,140 +508,273 @@ export default function ManageJobs() {
     });
   }
 
-  const generatePDF = (jobType, job_id) => {
-    let ArrayPDF = {}
-    if (jobType == 'job') {
-      const jobArr = jobs.filter((job) => job['_id'] == job_id)
-      ArrayPDF = jobArr[0]
-    }
+  // const generatePDF = (jobType, job_id) => {
+  //   let ArrayPDF = {}
+  //   if (jobType == 'job') {
+  //     const jobArr = jobs.filter((job) => job['_id'] == job_id)
+  //     ArrayPDF = jobArr[0]
+  //   }
     
 
 
-    if (ArrayPDF['extraPayments'].length > 0) {
-      for (let x of ArrayPDF['extraPayments']) {
+  //   if (ArrayPDF['extraPayments'].length > 0) {
+  //     for (let x of ArrayPDF['extraPayments']) {
 
-        const category = extraPaymentCategories.filter((single) => single['_id'] == x['extraPaymentCategory'])
-        x['nameOfCategory'] = category[0]['name']
-        if(category[0]['thai_name']){
-          x['thai_catergory_name'] = category[0]['thai_name']
+  //       const category = extraPaymentCategories.filter((single) => single['_id'] == x['extraPaymentCategory'])
+  //       x['nameOfCategory'] = category[0]['name']
+  //       if(category[0]['thai_name']){
+  //         x['thai_catergory_name'] = category[0]['thai_name']
+  //       }
+  //     }
+  //   }
+  //   console.log(ArrayPDF)
+
+  //   let totalCost = ArrayPDF['cost']
+  //   if (ArrayPDF['extraPayments'].length > 0) {
+  //     for (let x of ArrayPDF['extraPayments']) {
+
+  //       if (x['approved'] && x['status'] !== false) {
+  //         totalCost = totalCost + x.cost;
+  //       }
+  //     }
+  //   }
+  //   const doc = new jsPDF({
+  //     orientation: 'portrait',
+  //     unit: 'mm',
+  //     format: [80, 290], // width: 80mm, height: 290mm
+  //   });
+
+  //   function toTitleCase(text) {
+  //     return text
+  //       .toLowerCase() // Convert all text to lowercase first
+  //       .split(' ') // Split the text into words
+  //       .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
+  //       .join(' '); // Join the words back into a string
+  //   }
+
+  //   // Add logo with reduced space above
+  //   doc.addImage(Logo, 'PNG', 25, 2, 30, 10); // Reduced space from the top
+
+  //   // Header text
+  //   doc.setFontSize(12);
+  //   // doc.text('Siam Suits Supply', 40, 22, { align: 'center' }); // Adjusted y-position for tighter spacing
+
+  //   // QR code and main order info with reduced line height
+  //   doc.addImage(mainQR, 'PNG', 30, 17, 20, 20);
+  //   doc.setFontSize(10);
+  //   doc.text(`Name: ${ArrayPDF['tailor']['firstname']} ${ArrayPDF['tailor']['lastname']}`, 5, 45);  // Move text up slightly
+  //   doc.text(`Date: ${new Date(ArrayPDF['date']).toLocaleDateString()}`, 5, 51);  // Reduced line height
+  //   doc.text(`Order No.: ${ArrayPDF['order_id'] ? ArrayPDF['order_id']['orderId'] : ArrayPDF['group_order_id']['orderId']}`, 5, 57); // Reduced line height
+
+  //   // Order Details Section
+  //   doc.setFontSize(10);
+  //   doc.setFont('helvetica', 'bold');
+  //   doc.text('Category', 5, 67);  // Adjusted position
+  //   doc.text('Price', 65, 67, { align: 'right' });
+
+
+  //   doc.setFont('helvetica', 'normal');
+
+  //   doc.text(`${toTitleCase(ArrayPDF['process']['name'])}`, 5, 75);
+    
+  //   let yPos = 85;
+
+  //   // if(ArrayPDF['process']['thai_name']){
+  //   //   // doc.setFont('THSarabunNew');
+    
+  //   //   doc.text(ArrayPDF['process']['thai_name'], 5, yPos);
+  //   //   yPos += 5; // Tighter line height (5 instead of 7)
+  //   // }
+    
+  //   doc.setFont('helvetica','normal');
+  //   doc.text(`${ArrayPDF['cost']}`, 65, 75, { align: 'right' });
+
+
+  //   if (ArrayPDF['extraPayments'].length > 0) {
+
+  //     doc.setFont('helvetica', 'bold');
+  //     doc.text('Extra Category', 5, yPos);  // Adjusted position
+  //     doc.text('Price', 65, yPos, { align: 'right' });
+
+  //     doc.setFont('helvetica', 'normal');
+  //     yPos += 7
+  //     ArrayPDF['extraPayments'].forEach((item) => {
+  //       if (item['approved'] && item['status'] !== false) {
+  //         doc.text(toTitleCase(item.nameOfCategory), 5, yPos);
+  //         doc.text(String(item.cost), 65, yPos, { align: 'right' });
+  //         yPos += 5; // Tighter line height (5 instead of 7)
+  //         if(item['thai_category_name']){
+  //           doc.text(item.thai_category_name, 5, yPos);
+  //           yPos += 5; // Tighter line height (5 instead of 7)
+  //         }
+  //       }
+  //     });
+  //   }
+
+
+  //   if (ArrayPDF['stylingprice'] && Object.keys(ArrayPDF['stylingprice']).length > 0) {
+
+  //     doc.setFont('helvetica', 'bold');
+  //     doc.text('Stylings', 5, yPos);  // Adjusted position
+  //     doc.text('Price', 65, yPos, { align: 'right' });
+
+  //     doc.setFont('helvetica', 'normal');
+  //     yPos += 7
+  //     Object.keys(ArrayPDF['stylingprice']).forEach((item) => {
+  //       if (item['approved'] && item['status'] !== false) {
+  //         doc.text(item, 5, yPos);
+  //         doc.text(String(ArrayPDF['stylingprice'].item), 65, yPos, { align: 'right' });
+  //         yPos += 5; // Tighter line height (5 instead of 7)
+  //       }
+  //     });
+  //   }
+
+
+  //   // Total Section
+    
+  //   doc.setFont('helvetica', 'bold');
+  //   doc.setFontSize(12);
+  //   doc.text('Total:', 5, yPos + 5);
+  //   doc.text(String(totalCost), 65, yPos + 5, { align: 'right' });
+
+  //   // Save the PDF and open as Blob URL
+  //   const pdfBlob = doc.output('blob');
+  //   const blobUrl = URL.createObjectURL(pdfBlob);
+  //   window.open(blobUrl);
+
+
+
+  // };
+
+
+  const generatePDF = (jobType, job_id) => {
+    let ArrayPDF = {};
+    if (jobType === 'job') {
+      const jobArr = jobs.filter(job => job['_id'] === job_id);
+      ArrayPDF = jobArr[0];
+    }
+    
+    // Process extra payments
+    if (ArrayPDF['extraPayments']?.length > 0) {
+      for (let x of ArrayPDF['extraPayments']) {
+        const category = extraPaymentCategories.find(single => single['_id'] === x['extraPaymentCategory']);
+        if (category) {
+          x['nameOfCategory'] = category['name'];
+          if (category['thai_name']) {
+            x['thai_category_name'] = category['thai_name']; // Fixed typo
+          }
         }
       }
     }
-    console.log(ArrayPDF)
-
-    let totalCost = ArrayPDF['cost']
-    if (ArrayPDF['extraPayments'].length > 0) {
+    
+    console.log(ArrayPDF);
+    
+    // Calculate total cost
+    let totalCost = ArrayPDF['cost'] || 0;
+    if (ArrayPDF['extraPayments']?.length > 0) {
       for (let x of ArrayPDF['extraPayments']) {
-
         if (x['approved'] && x['status'] !== false) {
-          totalCost = totalCost + x.cost;
+          totalCost += x.cost;
         }
       }
     }
+    
+    // Create PDF
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
-      format: [80, 290], // width: 80mm, height: 290mm
+      format: [80, 290],
     });
-
+    
     function toTitleCase(text) {
-      return text
-        .toLowerCase() // Convert all text to lowercase first
-        .split(' ') // Split the text into words
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
-        .join(' '); // Join the words back into a string
+      return text?.toLowerCase().split(' ').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ') || '';
     }
-
-    // Add logo with reduced space above
-    doc.addImage(Logo, 'PNG', 25, 2, 30, 10); // Reduced space from the top
-
-    // Header text
-    doc.setFontSize(12);
-    // doc.text('Siam Suits Supply', 40, 22, { align: 'center' }); // Adjusted y-position for tighter spacing
-
-    // QR code and main order info with reduced line height
-    doc.addImage(mainQR, 'PNG', 30, 17, 20, 20);
+    
+    // Logo
+    doc.addImage(Logo, 'PNG', 25, 2, 30, 10);
+    
+    // Order Info
     doc.setFontSize(10);
-    doc.text(`Name: ${ArrayPDF['tailor']['firstname']} ${ArrayPDF['tailor']['lastname']}`, 5, 45);  // Move text up slightly
-    doc.text(`Date: ${new Date(ArrayPDF['date']).toLocaleDateString()}`, 5, 51);  // Reduced line height
-    doc.text(`Order No.: ${ArrayPDF['order_id'] ? ArrayPDF['order_id']['orderId'] : ArrayPDF['group_order_id']['orderId']}`, 5, 57); // Reduced line height
-
-    // Order Details Section
-    doc.setFontSize(10);
+    doc.text(`Name: ${ArrayPDF?.tailor?.firstname || ''} ${ArrayPDF?.tailor?.lastname || ''}`, 5, 45);
+    doc.text(`Date: ${new Date(ArrayPDF?.date).toLocaleDateString()}`, 5, 51);
+    doc.text(`Order No.: ${ArrayPDF?.order_id?.orderId || ArrayPDF?.group_order_id?.orderId || ''}`, 5, 57);
+    
+    // Category
     doc.setFont('helvetica', 'bold');
-    doc.text('Category', 5, 67);  // Adjusted position
+    doc.text('Category', 5, 67);
     doc.text('Price', 65, 67, { align: 'right' });
-
-
+    
     doc.setFont('helvetica', 'normal');
-
-    doc.text(`${toTitleCase(ArrayPDF['process']['name'])}`, 5, 75);
+    doc.text(`${toTitleCase(ArrayPDF?.process?.name)}`, 5, 75);
+    doc.text(`${ArrayPDF?.cost || 0}`, 65, 75, { align: 'right' });
     
     let yPos = 85;
-
-    // if(ArrayPDF['process']['thai_name']){
-    //   // doc.setFont('THSarabunNew');
     
-    //   doc.text(ArrayPDF['process']['thai_name'], 5, yPos);
-    //   yPos += 5; // Tighter line height (5 instead of 7)
-    // }
-    
-    doc.setFont('helvetica','normal');
-    doc.text(`${ArrayPDF['cost']}`, 65, 75, { align: 'right' });
-
-
-    if (ArrayPDF['extraPayments'].length > 0) {
-
+    // Extra Payments
+    if (ArrayPDF['extraPayments']?.length > 0) {
       doc.setFont('helvetica', 'bold');
-      doc.text('Extra Category', 5, yPos);  // Adjusted position
+      doc.text('Extra Category', 5, yPos);
       doc.text('Price', 65, yPos, { align: 'right' });
-
+    
       doc.setFont('helvetica', 'normal');
-      yPos += 7
+      yPos += 7;
+    
       ArrayPDF['extraPayments'].forEach((item) => {
         if (item['approved'] && item['status'] !== false) {
           doc.text(toTitleCase(item.nameOfCategory), 5, yPos);
           doc.text(String(item.cost), 65, yPos, { align: 'right' });
-          yPos += 5; // Tighter line height (5 instead of 7)
-          if(item['thai_category_name']){
-            doc.text(item.thai_category_name, 5, yPos);
-            yPos += 5; // Tighter line height (5 instead of 7)
+          yPos += 5;
+    
+          if (item['thai_category_name']) {
+            doc.text(item['thai_category_name'], 5, yPos);
+            yPos += 5;
           }
         }
       });
     }
-
-
+    
+    // Styling Price
     if (ArrayPDF['stylingprice'] && Object.keys(ArrayPDF['stylingprice']).length > 0) {
-
       doc.setFont('helvetica', 'bold');
-      doc.text('Stylings', 5, yPos);  // Adjusted position
+      doc.text('Stylings', 5, yPos);
       doc.text('Price', 65, yPos, { align: 'right' });
-
+    
       doc.setFont('helvetica', 'normal');
-      yPos += 7
-      Object.keys(ArrayPDF['stylingprice']).forEach((item) => {
-        if (item['approved'] && item['status'] !== false) {
-          doc.text(item, 5, yPos);
-          doc.text(String(ArrayPDF['stylingprice'].item), 65, yPos, { align: 'right' });
-          yPos += 5; // Tighter line height (5 instead of 7)
-        }
+      yPos += 7;
+    
+      Object.entries(ArrayPDF['stylingprice']).forEach(([key, value]) => {
+        doc.text(toTitleCase(key), 5, yPos);
+        doc.text(String(value), 65, yPos, { align: 'right' });
+        yPos += 5;
       });
     }
-
-
-    // Total Section
     
+    // Total
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.text('Total:', 5, yPos + 5);
     doc.text(String(totalCost), 65, yPos + 5, { align: 'right' });
-
-    // Save the PDF and open as Blob URL
+    
+    // Open in popup window
     const pdfBlob = doc.output('blob');
     const blobUrl = URL.createObjectURL(pdfBlob);
-    window.open(blobUrl);
-
+    const popup = window.open("", "pdfPopup", "width=800,height=600");
+    
+    if (popup) {
+      popup.document.write(`
+        <html>
+          <head><title>PDF Preview</title></head>
+          <body style="margin:0">
+            <embed width="100%" height="100%" src="${blobUrl}" type="application/pdf" />
+          </body>
+        </html>
+      `);
+    } else {
+      alert("Popup blocked! Please allow popups for this site.");
+    }
+    
 
 
   };

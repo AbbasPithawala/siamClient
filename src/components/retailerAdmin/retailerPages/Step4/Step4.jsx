@@ -148,7 +148,7 @@ export default function Step4() {
       
       setCustomer(res.data.data[0]);
       if (
-        existingOrders.data.status == true
+        existingOrders.data.status == true && existingOrders.data.data[0]['measurements']
       ) {
         const drafts = JSON.parse(JSON.stringify(existingOrders.data.data[0]['measurements']))
        setCustomerMeasurements(drafts)

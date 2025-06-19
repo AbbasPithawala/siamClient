@@ -259,12 +259,37 @@ export default function OrderStatusBarcoding() {
       '<p style="font-size:8px; font-weight:700;  text-align:center;">'+ itemNumber + " / " + itemQuantity + itemName +'</p>'+
       '</div>';
 
-      let doc = new jsPDF('l','px',[200, 65]);
-    doc.html(html, {
-      async callback(doc) {
-        window.open(doc.output("bloburl"), "_blank");
-      },
-    });
+    //   let doc = new jsPDF('l','px',[200, 65]);
+    // doc.html(html, {
+    //   async callback(doc) {
+    //     window.open(doc.output("bloburl"), "_blank");
+    //   },
+    // });
+    let doc = new jsPDF('l', 'px', [200, 65]);
+
+doc.html(html, {
+  async callback(doc) {
+    const blob = doc.output("blob");
+    const blobUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+
+    // Open popup window
+    const popup = window.open("", "pdfPopup", "width=800,height=600");
+
+    if (popup) {
+      // Write HTML that embeds the PDF
+      popup.document.write(`
+        <html>
+          <head><title>PDF Preview</title></head>
+          <body style="margin:0">
+            <embed width="100%" height="100%" src="${blobUrl}" type="application/pdf" />
+          </body>
+        </html>
+      `);
+    } else {
+      alert("Popup blocked! Please allow popups for this site.");
+    }
+  }
+});
       }else{
       }
       setQRCodeValue(text)

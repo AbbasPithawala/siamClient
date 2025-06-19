@@ -2,4 +2,4 @@
 export const PicBaseUrl = "https://siamsuits.s3.ap-northeast-1.amazonaws.com/images/";
 export const PicBaseUrl4 = "https://siamsuits.s3.ap-northeast-1.amazonaws.com/"
 // export const PicBaseUrl3 = "http://localhost:4545/";
-export const PicBaseUrl3 = "http://54.238.90.95/";
+export const PicBaseUrl3 = "http://54.248.164.243/";
