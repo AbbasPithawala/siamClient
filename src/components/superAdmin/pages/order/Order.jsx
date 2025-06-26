@@ -4,7 +4,7 @@ import "./order.css";
 import { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Context } from "../../../../context/Context";
-import { axiosInstance, axiosInstance2 } from "../../../../config";
+import { axiosInstance } from "../../../../config";
 import { PicBaseUrl, PicBaseUrl3, PicBaseUrl4 } from "../../../../imageBaseURL";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";

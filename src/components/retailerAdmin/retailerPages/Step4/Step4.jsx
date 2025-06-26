@@ -4,7 +4,7 @@ import { Button } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { axiosInstance, axiosInstance2 } from "../../../../config";
+import { axiosInstance } from "../../../../config";
 import { useLocation } from "react-router-dom";
 import { Context } from "./../../../../context/Context";
 import MissingFabric from "./../../../FabricsAndStyling/MissingFabric";
@@ -678,7 +678,7 @@ export default function Step4() {
           rushOrderDate: date,
         };
 
-        const res = await axiosInstance2.post("/customerOrders/create", {
+        const res = await axiosInstance.post("/customerOrders/create", {
           order: order,
           token: user.data.token,
         });
@@ -711,12 +711,12 @@ export default function Step4() {
 
     let justAnArray = [];
 
-    const res = await axiosInstance2.post(
+    const res = await axiosInstance.post(
       "/customerOrders/fetchOrderByID/" + order,
       { token: user.data.token }
     );
 
-    const res1 = await axiosInstance2.post('/retailer/fetch', {
+    const res1 = await axiosInstance.post('/retailer/fetch', {
       token: user.data.token,
       id: res.data.data[0]['retailer_id']
     })
@@ -725,10 +725,10 @@ export default function Step4() {
     // const res2 = await axiosInstance.post("/draftMeasurements/fetch/" + res.data.data[0]['customer_id']['_id'], {token: user.data.token})
     let draftMeasurementsObj = {}
     if(res.data.data[0].repeatOrder == true){
-      const previousOrder = await axiosInstance2.post("/customerOrders/fetchOrderByID/" + res.data.data[0]['repeatOrderID'], {token : user.data.token})
+      const previousOrder = await axiosInstance.post("/customerOrders/fetchOrderByID/" + res.data.data[0]['repeatOrderID'], {token : user.data.token})
       draftMeasurementsObj = previousOrder.data.data[0]['measurements']
     }else{
-      const existingOrders = await axiosInstance2.post("/customerOrders/fetchCustomerOrders/" + res.data.data[0]['customer_id']['_id'], {token: user.data.token})
+      const existingOrders = await axiosInstance.post("/customerOrders/fetchCustomerOrders/" + res.data.data[0]['customer_id']['_id'], {token: user.data.token})
       if(existingOrders.data.status == true){
         let ind = 0;
         let ourIndex ;
@@ -3142,7 +3142,7 @@ export default function Step4() {
 
     const draftMeasurementsObjString = JSON.stringify(draftMeasurementsObj)
 
-    const pdfString = await axiosInstance2.post('customerOrders/createPdf', {
+    const pdfString = await axiosInstance.post('customerOrders/createPdf', {
       token: user.data.token,
       productFeaturesObject: productFeaturesObjectString,
       orderItemsArray: orderItemsArrayPDFString,
@@ -3153,7 +3153,7 @@ export default function Step4() {
     })
 
     if(pdfString.data.status == true){
-      const sendMail = await axiosInstance2.post('customerOrders/sendMail', {
+      const sendMail = await axiosInstance.post('customerOrders/sendMail', {
         token: user.data.token,
         order: res.data.data[0]['orderId']
       })

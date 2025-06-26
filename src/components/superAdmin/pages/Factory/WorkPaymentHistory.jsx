@@ -75,7 +75,6 @@ export default function WorkPaymentHistory() {
 
   const fetchWorkerPaymentHistory = async (par = null) => {
     const res = await axiosInstance.post("/payments/fetchAll", { token: user.data.token, par: par })
-    console.log(res.data)
     if (res.data.status == true) {
       if (startDate.length > 0 && !endDate.length > 0) {
         const paymentsArray = res.data.data.filter((payment) => payment.date > new Date(startDate).getTime())
@@ -122,8 +121,7 @@ export default function WorkPaymentHistory() {
   const exportPDF = async (e, pid) => {
 
     const paymentArray = payments.filter((payment) => payment['_id'] == pid)
-
-    // if paymentArray[0]['extraPayme']
+    console.log("paymentArray: ", paymentArray)
 
     let htmlElement = (
       <>
@@ -166,6 +164,13 @@ export default function WorkPaymentHistory() {
 
                 ?
                 paymentArray[0]['job'].map((job) => {
+                  let totalCost = 0;
+                  if(job['extraPayments'].length > 0){
+                    job['extraPayments'].forEach((extraPayment) => {
+                      totalCost += extraPayment['cost']
+                    })
+                  }
+                  totalCost += job['cost']
                   return (
                     <tr style={{ backgroundColor: '#f4f4f4' }} key={job['_id']}>
                       <td colSpan={2} style={{ color: '#444', borderBottom: '1px solid #d4d4d4' }}>
@@ -177,7 +182,7 @@ export default function WorkPaymentHistory() {
                         </font>
                       </td>
                       <td colSpan={1} style={{ color: '#444', borderBottom: '1px solid #d4d4d4', textAlign: 'right' }}>
-                        <font style={{ fontSize: '14px' }}>{job['cost']}</font>
+                        <font style={{ fontSize: '14px' }}>{totalCost}</font>
                       </td>
                     </tr>
 

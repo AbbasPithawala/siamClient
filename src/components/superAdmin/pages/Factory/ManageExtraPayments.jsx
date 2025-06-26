@@ -39,6 +39,9 @@ export default function ManageExtraPayments(){
   const [inputCost, setInputCost] = useState(false);
   const [ data , setData] = useState();
   const { user } = useContext(Context);
+  // -------------------- bulk selection state --------------------
+  const [selectedPaymentIds, setSelectedPaymentIds] = useState([]);
+  const [selectAllChecked, setSelectAllChecked] = useState(false);
  
   useEffect(() => {
     fetchTailors();
@@ -145,6 +148,57 @@ export default function ManageExtraPayments(){
     handleCloseInputCost()
   }
 
+  // ============================= BULK ACTIONS LOGIC =============================
+  const handleSelectRow = (id) => {
+    setSelectedPaymentIds((prev) =>
+      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectAllChecked) {
+      setSelectedPaymentIds([]);
+    } else {
+      const ids = workerExtraPayments.map((p) => p._id);
+      setSelectedPaymentIds(ids);
+    }
+    setSelectAllChecked(!selectAllChecked);
+  };
+
+  useEffect(() => {
+    const allIds = workerExtraPayments.map((p) => p._id);
+    setSelectAllChecked(
+      allIds.length > 0 && allIds.every((id) => selectedPaymentIds.includes(id))
+    );
+  }, [selectedPaymentIds, workerExtraPayments]);
+
+  const bulkUpdatePayments = async (ids, data) => {
+    try {
+      await Promise.all(
+        ids.map((id) =>
+          axiosInstance.put("/workerExtraPayments/update/" + id, {
+            token: user.data.token,
+            extraPayment: data,
+          })
+        )
+      );
+      setError(false);
+      setSuccess(true);
+      setSuccessMsg("Payments updated successfully");
+
+      const obj = { approved: false, status: true };
+      if (tailor['_id']) obj['tailor'] = tailor['_id'];
+      fetchExtraPayments(obj);
+      setSelectedPaymentIds([]);
+    } catch (err) {
+      setSuccess(false);
+      setError(true);
+      setErrorMsg("Failed to update selected payments");
+    }
+  };
+
+  const handleBulkApprove = () => bulkUpdatePayments(selectedPaymentIds, { approved: true });
+  const handleBulkDecline = () => bulkUpdatePayments(selectedPaymentIds, { status: false });
 
     // ======================================================================
   // ========================== static function ===========================
@@ -289,7 +343,17 @@ export default function ManageExtraPayments(){
               </select>
              </div> 
 
-              
+             {selectedPaymentIds.length > 0 && (
+               <div className="bulk-actions" style={{ display: "flex", alignItems: "flex-end", gap: "0.5rem" }}>
+                 <Button className="approve-button" onClick={handleBulkApprove}>
+                   Approve Selected
+                 </Button>
+                 <Button className="decline-button" onClick={handleBulkDecline}>
+                   Decline Selected
+                 </Button>
+               </div>
+             )}
+
                 </div>
                 {/* <div className="devider-boxNM"> <Divider>PAYMENT CATEGORY</Divider> </div>
                 <div className="searchstyle searchstyle-one">
@@ -304,6 +368,7 @@ export default function ManageExtraPayments(){
           <table className="table">
           <thead>
               <tr>
+              <th><input type="checkbox" checked={selectAllChecked} onChange={handleSelectAll} /></th>
               <th> Tailor Name</th>
               <th> Order #</th>
               <th> Cost </th>
@@ -320,6 +385,7 @@ export default function ManageExtraPayments(){
               console.log("payment: ", payment)
               return(
                 <tr key={payment._id}>
+                <td><input type="checkbox" checked={selectedPaymentIds.includes(payment._id)} onChange={() => handleSelectRow(payment._id)} /></td>
                 <td><strong>{payment['tailor']['firstname'] + " " + payment['tailor']['lastname']}</strong> </td>
                 <td>{payment['order_id'] ? payment['order_id']['orderId'] : payment['group_order_id']['orderId']}</td>
                 <td data-id={payment['_id']} onClick={handleOpenInputCost}> {payment['cost']} </td>   
@@ -386,6 +452,7 @@ export default function ManageExtraPayments(){
          
       </div>
      </div>
+     {/* moved bulk-actions to top search area */}
      <Dialog
         open={approveDailog}
         onClose={handleCloseApproveDailog}

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./SingleOrderCustomerDetails.css";
 import { Link } from "react-router-dom";
-import { axiosInstance, axiosInstance2 } from "./../../../../../config";
+import { axiosInstance } from "./../../../../../config";
 import { Context } from "./../../../../../context/Context";
 import { useNavigate } from "react-router-dom";
 import { PicBaseUrl, PicBaseUrl3, PicBaseUrl4 } from "./../../../../../imageBaseURL";
@@ -75,7 +75,7 @@ export default function SingleOrderCustomerDetails() {
     }
     // console
     let draftMeasurementsObj = {}
-    const existingOrders = await axiosInstance2.post("/customerOrders/fetchCustomerOrders/" + thisCustomer['_id'], { token: user.data.token })
+    const existingOrders = await axiosInstance.post("/customerOrders/fetchCustomerOrders/" + thisCustomer['_id'], { token: user.data.token })
 
     // console.log("existing orders ", existingOrders)
 
@@ -112,7 +112,7 @@ console.log("thisORder: ", thisOrder)
 
 
 
-    const res1 = await axiosInstance2.post('/retailer/fetch', {
+    const res1 = await axiosInstance.post('/retailer/fetch', {
       token: user.data.token,
       id: thisOrder['retailer_id']
     })
@@ -383,7 +383,7 @@ console.log("thisORder: ", thisOrder)
     const draftMeasurementsObjString = JSON.stringify(draftMeasurementsObj)
 
     console.log("singleOrderArray: ", singleOrderArray)
-    const pdfString = await axiosInstance2.post('customerOrders/createPdf', {
+    const pdfString = await axiosInstance.post('customerOrders/createPdf', {
       token: user.data.token,
       productFeaturesObject: productFeaturesObjectString,
       orderItemsArray: orderItemsArrayPDFString,

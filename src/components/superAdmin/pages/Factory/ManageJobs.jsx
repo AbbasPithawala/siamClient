@@ -348,9 +348,6 @@ export default function ManageJobs() {
         <div style={{ textAlign: "center", marginBottom: "10px" }}>
           <div className="logo" style={{ width: "100px", margin: "0 auto" }}>
             <img src={Logo} alt="Logo" style={{ width: "50px" }} />
-            <h4 style={{ margin: 0 }}>Siam Suits Supply</h4>
-          </div>
-          <div className="qr" style={{ width: "100px", margin: "10px auto" }}>
             <img src={mainQR} alt="QR Code" style={{ width: "50px" }} />
           </div>
         </div>
@@ -412,240 +409,31 @@ export default function ManageJobs() {
           </div>
         </div>
       </div>
-      // <>
-      //   <div style={{ width: "800px", marginLeft: '250px', marginRight: '250px', position: 'relative' }}>
-      //     <div style={{ width: "800px", margin: 'auto' }}>
-      //       <div className="logo" style={{ width: "200px", position: 'relative', textAlign: 'center' }}>
-      //         <img src={Logo} style={{ width: "80px" }} />
-      //         <h4 style={{ margin: "0", display: 'block', position: 'relative' }}>Siam Suits Supply</h4>
-      //       </div>
-      //       <div className="qr" style={{ width: "200px", position: 'relative', textAlign: 'center' }}>
-      //         <img src={mainQR} style={{ width: "80px" }} />
-      //       </div>
-      //       <div style={{ width: '600px', position: 'relative', fontSize: "14px" }}>
-      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}>Name: <span style={{ marginLeft: '50px' }}>{ArrayPDF['tailor']['firstname'] + " " + ArrayPDF['tailor']['lastname']}</span></div>
-      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}>Date: <span style={{ marginLeft: '50px' }}>{new Date(ArrayPDF['date']).toLocaleDateString()}</span></div>
-      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}>Order No.: <span style={{ marginLeft: '50px' }}>{ArrayPDF['order_id'] ? ArrayPDF['order_id']['orderId'] : ArrayPDF['group_order_id']['orderId']}</span></div>
-      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px', fontSize: "12px" }}><strong>Category</strong> <span style={{ marginLeft: '50px' }}><strong>Price</strong></span></div>
-      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px', textTransform: "capitalize", fontSize: "12px" }}>{ArrayPDF['process']['name']} <span style={{ marginLeft: '50px' }}>{ArrayPDF['cost']}</span></div>
-      //         {ArrayPDF['extraPayments'].length > 0
-      //           ?
-      //           <>
-      //             <div className="qr-detail"><strong>Extra Category</strong> <span style={{ marginLeft: '50px' }}><strong>Price</strong></span></div>
-      //             {
-      //               ArrayPDF['extraPayments'].map((single) => {
-      //                 if (single['approved'] == true && single['status'] !== false) {
-      //                   totalCost = totalCost + single.cost
-      //                   return (
-      //                     <div className="qr-detail" style={{ textTransform: "capitalize", fontSize: "12px" }}>{single.nameOfCategory} <span style={{ marginLeft: '50px' }}>{single.cost}</span></div>
-      //                   )
-      //                 }
-      //               })
-      //             }
-      //           </>
-      //           :
-      //           <></>}
-      //         {
-      //           ArrayPDF['stylingprice'] && Object.keys(ArrayPDF['stylingprice']).length > 0
-      //             ?
-      //             <>
-      //               <div className="qr-detail"><strong>Stylings</strong> <span style={{ marginLeft: '50px' }}><strong>Price</strong></span></div>
-      //               {
-      //                 Object.keys(ArrayPDF['stylingprice']).map((single) => {
-      //                   totalCost = totalCost + ArrayPDF['stylingprice'][single]
-      //                   return (
-      //                     <div className="qr-detail" style={{ textTransform: "capitalize" }}>{single} <span style={{ marginLeft: '50px' }}>{ArrayPDF['stylingprice'][single]}</span></div>
-      //                   )
-      //                 })
-      //               }
-      //             </>
-      //             :
-      //             <></>
-      //         }
-      //         {/* <div className="qr-detail"><strong>Extra Category</strong> <span style={{marginLeft:'50px'}}><strong>Price</strong></span></div> 
-      //       <div className="qr-detail">HIDDEN POCKET <span style={{marginLeft:'50px'}}>10</span></div>  */}
-      //         <div className="qr-detail" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', width: '200px' }}><span style={{ marginLeft: '50px' }}><strong>Total : {totalCost}</strong></span></div>
-      //         {/* <div className="qr-detail"  style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}><strong>Authorized by</strong> <span style={{marginLeft:'50px'}}>s</span></div> */}
-      //       </div>
-      //     </div>
-      //   </div>
-      // </>
     )
 
-    // let html2 = (
-    //   <>
-    //   <div style={{ width: "800px", marginLeft:'250px', marginRight:'250px', position:'relative'}}>
-    //       <div style={{ width: "800px", margin:'auto'}}>
-    //         <div className="logo" style={{ width: "200px", position:'relative', textAlign:'center'}}>
-    //          <img src={Logo} style={{width:"80px"}}/>
-    //          <h2 style={{margin:"0", display:'block', position:'relative'}}>Siam Suits Supply</h2>
-    //         </div>
-    //         <div className="qr" style={{width: "200px", position:'relative', textAlign:'center'}}>
-    //          <img src={mainQR} style={{width:"80px"}}/>
-    //         </div>
-    //         <div style={{width:'600px', position:'relative'}}>
-    //         <div className="qr-detail" style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}>Name: <span>Aon Pant</span></div>
-    //         <div className="qr-detail" style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}>Date: <span>28/Mar/2023</span></div>
-    //         <div className="qr-detail" style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}>Order No.: <span>dan-11367</span></div>
-    //         <div className="qr-detail" style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}><strong>Category</strong> <span><strong>Price</strong></span></div> 
-    //         <div className="qr-detail" style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}>Pants Sewing <span>200</span></div> 
-    //         <div className="qr-detail" style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}><strong>Extra Category</strong> <span><strong>Price</strong></span></div> 
-    //         <div className="qr-detail" style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}>HIDDEN POCKET <span>10</span></div> 
-    //         <div className="qr-detail" style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}><span style={{marginLeft:'90px'}}><strong>Total : 230.00</strong></span></div>
-    //         <div className="qr-detail" style={{position:'relative', display:'flex', justifyContent:'space-between', width:'200px' }}><strong>Authorized by</strong> <span>s</span></div>
-    //       </div>
-    //       </div>
-    //     </div></>
-    // )
     let elementAsString = renderToString(htmlElement);
     let doc = new jsPDF('p', 'px', [794, 1123]);
     doc.html(elementAsString, {
       callback: function (doc) {
-        window.open(doc.output('bloburl'), '_blank');
+        const popup = window.open("", "pdfPopup", "width=800,height=600");
+        
+        if (popup) {
+          popup.document.write(`
+            <html>
+              <head><title>PDF Preview</title></head>
+              <body style="margin:0">
+                <embed width="100%" height="100%" src="${doc.output('bloburl')}" type="application/pdf" />
+              </body>
+            </html>
+          `);
+        } else {
+          alert("Popup blocked! Please allow popups for this site.");
+        }
       },
       x: 10,
       y: 10,
     });
   }
-
-  // const generatePDF = (jobType, job_id) => {
-  //   let ArrayPDF = {}
-  //   if (jobType == 'job') {
-  //     const jobArr = jobs.filter((job) => job['_id'] == job_id)
-  //     ArrayPDF = jobArr[0]
-  //   }
-    
-
-
-  //   if (ArrayPDF['extraPayments'].length > 0) {
-  //     for (let x of ArrayPDF['extraPayments']) {
-
-  //       const category = extraPaymentCategories.filter((single) => single['_id'] == x['extraPaymentCategory'])
-  //       x['nameOfCategory'] = category[0]['name']
-  //       if(category[0]['thai_name']){
-  //         x['thai_catergory_name'] = category[0]['thai_name']
-  //       }
-  //     }
-  //   }
-  //   console.log(ArrayPDF)
-
-  //   let totalCost = ArrayPDF['cost']
-  //   if (ArrayPDF['extraPayments'].length > 0) {
-  //     for (let x of ArrayPDF['extraPayments']) {
-
-  //       if (x['approved'] && x['status'] !== false) {
-  //         totalCost = totalCost + x.cost;
-  //       }
-  //     }
-  //   }
-  //   const doc = new jsPDF({
-  //     orientation: 'portrait',
-  //     unit: 'mm',
-  //     format: [80, 290], // width: 80mm, height: 290mm
-  //   });
-
-  //   function toTitleCase(text) {
-  //     return text
-  //       .toLowerCase() // Convert all text to lowercase first
-  //       .split(' ') // Split the text into words
-  //       .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
-  //       .join(' '); // Join the words back into a string
-  //   }
-
-  //   // Add logo with reduced space above
-  //   doc.addImage(Logo, 'PNG', 25, 2, 30, 10); // Reduced space from the top
-
-  //   // Header text
-  //   doc.setFontSize(12);
-  //   // doc.text('Siam Suits Supply', 40, 22, { align: 'center' }); // Adjusted y-position for tighter spacing
-
-  //   // QR code and main order info with reduced line height
-  //   doc.addImage(mainQR, 'PNG', 30, 17, 20, 20);
-  //   doc.setFontSize(10);
-  //   doc.text(`Name: ${ArrayPDF['tailor']['firstname']} ${ArrayPDF['tailor']['lastname']}`, 5, 45);  // Move text up slightly
-  //   doc.text(`Date: ${new Date(ArrayPDF['date']).toLocaleDateString()}`, 5, 51);  // Reduced line height
-  //   doc.text(`Order No.: ${ArrayPDF['order_id'] ? ArrayPDF['order_id']['orderId'] : ArrayPDF['group_order_id']['orderId']}`, 5, 57); // Reduced line height
-
-  //   // Order Details Section
-  //   doc.setFontSize(10);
-  //   doc.setFont('helvetica', 'bold');
-  //   doc.text('Category', 5, 67);  // Adjusted position
-  //   doc.text('Price', 65, 67, { align: 'right' });
-
-
-  //   doc.setFont('helvetica', 'normal');
-
-  //   doc.text(`${toTitleCase(ArrayPDF['process']['name'])}`, 5, 75);
-    
-  //   let yPos = 85;
-
-  //   // if(ArrayPDF['process']['thai_name']){
-  //   //   // doc.setFont('THSarabunNew');
-    
-  //   //   doc.text(ArrayPDF['process']['thai_name'], 5, yPos);
-  //   //   yPos += 5; // Tighter line height (5 instead of 7)
-  //   // }
-    
-  //   doc.setFont('helvetica','normal');
-  //   doc.text(`${ArrayPDF['cost']}`, 65, 75, { align: 'right' });
-
-
-  //   if (ArrayPDF['extraPayments'].length > 0) {
-
-  //     doc.setFont('helvetica', 'bold');
-  //     doc.text('Extra Category', 5, yPos);  // Adjusted position
-  //     doc.text('Price', 65, yPos, { align: 'right' });
-
-  //     doc.setFont('helvetica', 'normal');
-  //     yPos += 7
-  //     ArrayPDF['extraPayments'].forEach((item) => {
-  //       if (item['approved'] && item['status'] !== false) {
-  //         doc.text(toTitleCase(item.nameOfCategory), 5, yPos);
-  //         doc.text(String(item.cost), 65, yPos, { align: 'right' });
-  //         yPos += 5; // Tighter line height (5 instead of 7)
-  //         if(item['thai_category_name']){
-  //           doc.text(item.thai_category_name, 5, yPos);
-  //           yPos += 5; // Tighter line height (5 instead of 7)
-  //         }
-  //       }
-  //     });
-  //   }
-
-
-  //   if (ArrayPDF['stylingprice'] && Object.keys(ArrayPDF['stylingprice']).length > 0) {
-
-  //     doc.setFont('helvetica', 'bold');
-  //     doc.text('Stylings', 5, yPos);  // Adjusted position
-  //     doc.text('Price', 65, yPos, { align: 'right' });
-
-  //     doc.setFont('helvetica', 'normal');
-  //     yPos += 7
-  //     Object.keys(ArrayPDF['stylingprice']).forEach((item) => {
-  //       if (item['approved'] && item['status'] !== false) {
-  //         doc.text(item, 5, yPos);
-  //         doc.text(String(ArrayPDF['stylingprice'].item), 65, yPos, { align: 'right' });
-  //         yPos += 5; // Tighter line height (5 instead of 7)
-  //       }
-  //     });
-  //   }
-
-
-  //   // Total Section
-    
-  //   doc.setFont('helvetica', 'bold');
-  //   doc.setFontSize(12);
-  //   doc.text('Total:', 5, yPos + 5);
-  //   doc.text(String(totalCost), 65, yPos + 5, { align: 'right' });
-
-  //   // Save the PDF and open as Blob URL
-  //   const pdfBlob = doc.output('blob');
-  //   const blobUrl = URL.createObjectURL(pdfBlob);
-  //   window.open(blobUrl);
-
-
-
-  // };
-
 
   const generatePDF = (jobType, job_id) => {
     let ArrayPDF = {};
@@ -694,6 +482,9 @@ export default function ManageJobs() {
     
     // Logo
     doc.addImage(Logo, 'PNG', 25, 2, 30, 10);
+    
+    // QR code
+    doc.addImage(mainQR, 'PNG', 30, 17, 20, 20);
     
     // Order Info
     doc.setFontSize(10);
@@ -774,10 +565,8 @@ export default function ManageJobs() {
     } else {
       alert("Popup blocked! Please allow popups for this site.");
     }
-    
+  }
 
-
-  };
   const handleAddQrCode = (e) => {
     if (!qrCode.length > 0) {
       setError(true)
